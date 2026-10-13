@@ -1,0 +1,19 @@
+# Verified installed 2026-09-28, Python 3.13.12, Windows.
+# torch is the CPU build (install from https://download.pytorch.org/whl/cpu
+# if reinstalling - the default PyPI index also resolves it, just slower).
+
+pandas>=3.0
+numpy>=2.4
+scikit-learn>=1.8
+scipy>=1.17
+pyarrow>=25.0          # required for fmcs_wide.parquet (Phase 1a)
+matplotlib
+
+torch>=2.14
+torch_geometric>=2.8
+
+h5py>=3.16              # PowerGraph .mat files are MATLAB v7.3 (HDF5) -
+                         # scipy.io.loadmat cannot read them, h5py can
+
+langgraph>=1.2
+langsmith>=0.14

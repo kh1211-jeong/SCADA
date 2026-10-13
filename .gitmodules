@@ -1,0 +1,3 @@
+[submodule "EGMS"]
+	path = EGMS
+	url = https://github.com/kh1211-jeong/EGMS.git

@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# 데이터셋/생성물 (용량 큼, 각 환경에서 받거나 생성)
+fmcs_synth/
+fmcs/
+swat/
+wadi/
+epic/
+hai/
+fig_share_powergraph_22820534/
+results/
+*.zip
+*.7z
+*.log
+
+# 로컬 잡파일
+NVIDIA Corporation/
