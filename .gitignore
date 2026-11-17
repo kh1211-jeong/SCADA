@@ -2,19 +2,39 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.DS_Store
+~$*
 
-# 데이터셋/생성물 (용량 큼, 각 환경에서 받거나 생성)
-fmcs_synth/
+# 원본 데이터셋 (용량 큼 — 각 환경에서 받거나 생성, README 3절)
+*.zip
+*.7z
+data/
 fmcs/
 swat/
 wadi/
 epic/
 hai/
 fig_share_powergraph_22820534/
-results/
-*.zip
-*.7z
-*.log
-
-# 로컬 잡파일
 NVIDIA Corporation/
+
+# 합성 데이터: 생성기로 재현 (python -m src.data.synth_fmcs ...). 데모·피처에 필요한 작은 표만 올림
+fmcs_synth/
+fmcs_synth_v2/raw/
+fmcs_synth_v2/*.parquet
+
+# 학습 결과: 오차 캐시(*.npz, 개당 ~96MB)·로그는 제외, 보고서 그림·수치·경량 모델만 올림
+*.log
+results/*
+!results/TRAINING_HISTORY.md
+!results/training_history_study3.csv
+!results/report/
+!results/report3/
+!results/report4/
+!results/agent/
+!results/fmcs_v2/
+results/fmcs_v2/*
+!results/fmcs_v2/lite/
+results/fmcs_v2/lite/*
+!results/fmcs_v2/lite/*.json
+!results/fmcs_v2/lite/*.pt
+!results/fmcs_v2/lite/neighbors_*.npy

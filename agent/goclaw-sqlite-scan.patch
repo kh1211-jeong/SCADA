@@ -1,0 +1,25 @@
+diff --git a/internal/store/sqlitestore/mcp_servers_access.go b/internal/store/sqlitestore/mcp_servers_access.go
+index 5fbc52c..40a0188 100644
+--- a/internal/store/sqlitestore/mcp_servers_access.go
++++ b/internal/store/sqlitestore/mcp_servers_access.go
+@@ -306,17 +306,19 @@ func (s *SQLiteMCPServerStore) scanAccessibleRows(rows *sql.Rows) ([]store.MCPAc
+ 		var displayName, command, url, apiKey, toolPrefix *string
+ 		var args, headers, env *[]byte
+ 		var toolAllowJSON, toolDenyJSON *[]byte
++		var settingsRaw *[]byte // [local patch] Go 1.27: json.RawMessage(=jsontext.Value)는 TEXT 열을 Scan 못 함
+ 
+ 		createdAt, updatedAt := scanTimePair()
+ 		if err := rows.Scan(
+ 			&srv.ID, &srv.Name, &displayName, &srv.Transport, &command,
+ 			&args, &url, &headers, &env,
+ 			&apiKey, &toolPrefix, &srv.TimeoutSec,
+-			&srv.Settings, &srv.Enabled, &srv.CreatedBy, createdAt, updatedAt,
++			&settingsRaw, &srv.Enabled, &srv.CreatedBy, createdAt, updatedAt,
+ 			&toolAllowJSON, &toolDenyJSON,
+ 		); err != nil {
+ 			continue
+ 		}
++		srv.Settings = derefBytes(settingsRaw)
+ 		srv.CreatedAt = createdAt.Time
+ 		srv.UpdatedAt = updatedAt.Time
+ 		srv.DisplayName = derefStr(displayName)

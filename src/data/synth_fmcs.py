@@ -24,6 +24,15 @@ EGMS/CLAUDE.md 8절). 출력 포맷은 README.md 3.1의 Oracle 추출 형식을 
                 ltr_overheat, oltc_hunting, voltage_sag
   data_quality: comm_loss
 
+--profile v2 (현실성 강화, #3 연구용):
+  - 부하 유형(공정/공조/사무) 별 일·주·휴일 패턴, 교대 시각 변동, 계통 공통 변동
+  - 외기온도(계절 하강 + 일교차 + 수일 단위 기상 변동) -> 공조 부하·전기실 온도에 반영
+  - 한국 공휴일(추석 연휴, 개천절·대체공휴일, 한글날) 부하 감소
+  - 이상 크기를 현장 수준으로 축소하고, 설비 간 관계로만 드러나는 이상 2종 추가
+      hidden_load : 피더 하류에 미계량 부하/누설 -> 피더 P는 증가, 하위 ACB 합은 불변(KCL 불일치)
+      pt_drift    : PT 비 드리프트 -> 한 설비의 V와 P가 같은 비율로 변해 설비 내부 물리식은 성립,
+                    같은 모선의 형제 설비 전압과만 어긋남
+
 사용:
   python -m src.data.synth_fmcs --days 7 --seed 0
   python -m src.data.synth_fmcs --days 1 --out-dir fmcs_synth_small --write-truth
@@ -225,6 +234,8 @@ class LoadSpec:
     daily_amp: float
     phase_h: float
     sign: float = 1.0        # STR 역송 = -1
+    kind: str = "process"    # v2: process / hvac / office
+    hvac: float = 0.0        # v2: 공조 부하의 외기온도 민감도 (1/°C)
 
 
 @dataclass
@@ -238,17 +249,47 @@ class Scenario:
     events: list[dict]
     sw_changes: list[tuple[int, str, int]]          # (t, switch, closed)
     cap_groups: dict[str, list[str]] = field(default_factory=dict)
+    profile: str = "v1"
+    amb_min: np.ndarray | None = None               # v2: 분 단위 외기온도 (°C)
+    daytype: np.ndarray | None = None               # v2: 일 단위 0=평일 1=주말 2=공휴일
+
+
+KR_HOLIDAYS = {"2026-09-24", "2026-09-25", "2026-09-26", "2026-10-03", "2026-10-05", "2026-10-09",
+               "2026-12-25", "2027-01-01"}
+DAY_FACTOR = {"process": (1.0, 0.97, 0.94), "hvac": (1.0, 0.72, 0.66), "office": (1.0, 0.42, 0.38)}
+
+
+def _ambient(days: int, start: pd.Timestamp, rng: np.random.Generator) -> np.ndarray:
+    """분 단위 외기온도: 계절 하강(9월 초 26°C -> 10월 하순 13°C) + 일교차 + 수일 상관 기상 변동."""
+    n = days * 1440
+    t = np.arange(n) / 1440.0
+    doy = start.dayofyear + t
+    season = 26.0 - 13.0 * np.clip((doy - 245) / 55.0, 0, 1.4)
+    syn_d = np.zeros(days + 2)
+    for d in range(1, days + 2):
+        syn_d[d] = 0.6 * syn_d[d - 1] + rng.normal(0, 2.0)
+    syn = np.interp(t, np.arange(days + 2) - 0.5, syn_d)
+    amp = rng.uniform(3.5, 6.0, days + 1)[t.astype(int)]          # 맑은 날 일교차 큼
+    diurnal = amp * np.sin(2 * np.pi * (t % 1 - 9 / 24))            # 최고 15시, 최저 3시 부근
+    return season + syn + diurnal + rng.normal(0, 0.15, n)
 
 
 def design_scenario(plant: Plant, days: int, start: pd.Timestamp, rng: np.random.Generator,
-                    anomalies_per_day: float) -> Scenario:
+                    anomalies_per_day: float, profile: str = "v1", eval_days: int = 0, eval_per_type: int = 0) -> Scenario:
     n_total = days * SPD
     loads: list[LoadSpec] = []
+    v2 = profile == "v2"
     for n in plant.names:
         t = plant.etype[n]
         m = plant.meta[n]
         if t == "ACB":
             base = rng.uniform(400, 900) if m.get("ftype") == "dual" else rng.uniform(150, 400)
+            if v2:
+                kind = rng.choice(["process", "hvac", "office"], p=[0.55, 0.27, 0.18])
+                amp = {"process": rng.uniform(0.01, 0.04), "hvac": rng.uniform(0.02, 0.05), "office": rng.uniform(0.03, 0.06)}[kind]
+                loads.append(LoadSpec(n, base, rng.uniform(0.86, 0.95), amp, rng.uniform(12, 17), kind=str(kind),
+                                      hvac=float(rng.uniform(0.025, 0.05)) if kind == "hvac" else 0.0))
+                continue
             loads.append(LoadSpec(n, base, rng.uniform(0.86, 0.95), rng.uniform(0.03, 0.08), rng.uniform(12, 17)))
         elif t == "ACB_MAIN_EMG":
             loads.append(LoadSpec(n, rng.uniform(100, 300), rng.uniform(0.88, 0.95), 0.03, 14.0))
@@ -260,7 +301,7 @@ def design_scenario(plant: Plant, days: int, start: pd.Timestamp, rng: np.random
     for ls in loads:
         if ls.sign < 0:
             continue
-        k = rng.poisson(3.0 * days)
+        k = rng.poisson({"process": 4.0, "hvac": 1.5, "office": 1.0}[ls.kind] * days if v2 else 3.0 * days)
         for _ in range(k):
             t0 = int(rng.integers(0, n_total))
             dur = int(np.clip(rng.lognormal(np.log(90), 0.6), 15, 400) * SPM)
@@ -298,12 +339,23 @@ def design_scenario(plant: Plant, days: int, start: pd.Timestamp, rng: np.random
         if plant.etype[n] == "VCS_CAP":
             cap_groups[plant.system_of(n)].append(n)
 
-    events, sw_changes = _design_events(plant, days, rng, anomalies_per_day, n_total)
-    return Scenario(days, start, loads, dict(steps), ltr_kva, btr_kva, events, sw_changes, dict(cap_groups))
+    events, sw_changes = _design_events(plant, days, rng, anomalies_per_day, n_total, profile, eval_days, eval_per_type)
+    for e in events:
+        if e["type"] == "hidden_load":           # 미계량 부하 크기 = 피더 하위 정격 부하의 일정 비율
+            e["params"]["extra_kw"] = float(e["params"]["frac"] * max(subtree_kva(e["target"]), 100.0) * 0.9)
+    amb = daytype = None
+    if v2:
+        amb = _ambient(days, start, rng)
+        dates = [start.normalize() + pd.Timedelta(days=d) for d in range(days)]
+        daytype = np.array([2 if f"{x:%Y-%m-%d}" in KR_HOLIDAYS else (1 if x.dayofweek >= 5 else 0) for x in dates])
+    return Scenario(days, start, loads, dict(steps), ltr_kva, btr_kva, events, sw_changes, dict(cap_groups),
+                    profile, amb, daytype)
 
 
 def _design_events(plant: Plant, days: int, rng: np.random.Generator, anomalies_per_day: float,
-                   n_total: int) -> tuple[list[dict], list[tuple[int, str, int]]]:
+                   n_total: int, profile: str = "v1", eval_days: int = 0,
+                   eval_per_type: int = 0) -> tuple[list[dict], list[tuple[int, str, int]]]:
+    v2 = profile == "v2"
     events: list[dict] = []
     sw_changes: list[tuple[int, str, int]] = []
     busy: dict[str, list[tuple[int, int]]] = defaultdict(list)   # 계통별 스위칭 점유 구간
@@ -373,15 +425,29 @@ def _design_events(plant: Plant, days: int, rng: np.random.Generator, anomalies_
     btrs = [n for n in plant.names if plant.etype[n] == "BTR" and plant.meta[n].get("bank") == "A"]
     a_types = ["ct_drift", "sensor_stuck", "spike_burst", "pf_sign_flip", "meter_offset",
                "ltr_overheat", "oltc_hunting", "voltage_sag", "comm_loss"]
+    a_prob = None
+    if v2:
+        a_types += ["hidden_load", "pt_drift"]
+        a_prob = np.array([1.3, 1.0, 0.8, 0.5, 1.0, 0.9, 0.6, 0.5, 0.9, 1.3, 1.2]); a_prob /= a_prob.sum()
+    mvfeed = [n for n in plant.names if plant.etype[n] == "VCB_FEEDER" and plant.normal_state[plant.sw_idx[n]] == 1]
+    vnodes = [n for n in analog_nodes if plant.etype[n] in ("MAIN", "VCB_FEEDER")]
+    plan = []
     for _ in range(rng.poisson(anomalies_per_day * days)):
-        typ = a_types[int(rng.integers(len(a_types)))]
-        t0 = int(rng.integers(SPM * 60, n_total - SPM * 60))
+        typ = a_types[int(rng.choice(len(a_types), p=a_prob))] if v2 else a_types[int(rng.integers(len(a_types)))]
+        plan.append((typ, int(rng.integers(SPM * 60, n_total - SPM * 60))))
+    if v2 and eval_days:                         # 평가 구간: 유형별 최소 eval_per_type건 층화 배치(유형별 분석용)
+        lo, ts_ = n_total - eval_days * SPD, [t for t in a_types for _ in range(eval_per_type)]
+        slots = np.sort(rng.permutation(np.linspace(lo + SPM * 90, n_total - SPM * 300, len(ts_)).astype(int)))
+        order = rng.permutation(len(ts_))
+        plan += [(ts_[order[i]], int(slots[i] + rng.integers(-SPM * 30, SPM * 30))) for i in range(len(ts_))]
+    dur = (lambda v1r, v2r: rng.uniform(*(v2r if v2 else v1r)))
+    for typ, t0 in plan:
         ev = {"kind": "anomaly", "type": typ, "start": t0}
         if typ == "ct_drift":
             node = current_nodes[int(rng.integers(len(current_nodes)))]
-            ramp = int(rng.uniform(120, 480) * SPM)
-            ev.update(end=min(n_total - 1, t0 + ramp + int(rng.uniform(60, 240) * SPM)), target=f"{node}_CURRENT",
-                      params={"gain": float(rng.uniform(1.06, 1.20)), "ramp": ramp},
+            ramp = int(dur((120, 480), (60, 200)) * SPM)
+            ev.update(end=min(n_total - 1, t0 + ramp + int(dur((60, 240), (40, 150)) * SPM)), target=f"{node}_CURRENT",
+                      params={"gain": float(rng.uniform(1.04, 1.12) if v2 else rng.uniform(1.06, 1.20)), "ramp": ramp},
                       detail="CT 비율 드리프트: 전류만 서서히 증가, P/V/PF 불변 -> 물리 잔차 증가")
         elif typ == "sensor_stuck":
             node = analog_nodes[int(rng.integers(len(analog_nodes)))]
@@ -391,21 +457,21 @@ def _design_events(plant: Plant, days: int, rng: np.random.Generator, anomalies_
         elif typ == "spike_burst":
             node = current_nodes[int(rng.integers(len(current_nodes)))]
             ev.update(end=min(n_total - 1, t0 + int(rng.uniform(1, 10) * SPM)), target=f"{node}_CURRENT",
-                      params={"mult": float(rng.uniform(2.5, 6.0))}, detail="전류 순간 스파이크 다발")
+                      params={"mult": float(rng.uniform(1.8, 3.5) if v2 else rng.uniform(2.5, 6.0))}, detail="전류 순간 스파이크 다발")
         elif typ == "pf_sign_flip":
             node = analog_nodes[int(rng.integers(len(analog_nodes)))]
-            ev.update(end=min(n_total - 1, t0 + int(rng.uniform(60, 360) * SPM)), target=f"{node}_PF",
+            ev.update(end=min(n_total - 1, t0 + int(dur((60, 360), (30, 150)) * SPM)), target=f"{node}_PF",
                       detail="PF 부호 반전(결선/설정 오류): P = sqrt3*V*I*PF 부호 불일치")
         elif typ == "meter_offset":
             node = [n for n in current_nodes if plant.etype[n] == "ACB"]
             node = node[int(rng.integers(len(node)))]
-            ev.update(end=min(n_total - 1, t0 + int(rng.uniform(60, 480) * SPM)), target=f"{node}_POWER",
-                      params={"offset_frac": float(rng.choice([-1, 1]) * rng.uniform(0.15, 0.35))},
+            ev.update(end=min(n_total - 1, t0 + int(dur((60, 480), (45, 200)) * SPM)), target=f"{node}_POWER",
+                      params={"offset_frac": float(rng.choice([-1, 1]) * (rng.uniform(0.07, 0.18) if v2 else rng.uniform(0.15, 0.35)))},
                       detail="전력계 오프셋: 하위 합(KCL)과 상위 측정 불일치")
         elif typ == "ltr_overheat":
             node = ltrs[int(rng.integers(len(ltrs)))]
-            ev.update(end=min(n_total - 1, t0 + int(rng.uniform(90, 300) * SPM)), target=node,
-                      params={"delta_c": float(rng.uniform(15, 30))},
+            ev.update(end=min(n_total - 1, t0 + int(dur((90, 300), (90, 220)) * SPM)), target=node,
+                      params={"delta_c": float(rng.uniform(8, 18) if v2 else rng.uniform(15, 30))},
                       detail="몰드변압기 냉각팬 고장: 부하와 무관한 권선온도 상승")
         elif typ == "oltc_hunting":
             node = btrs[int(rng.integers(len(btrs)))]
@@ -413,9 +479,21 @@ def _design_events(plant: Plant, days: int, rng: np.random.Generator, anomalies_
                       params={"period_min": float(rng.uniform(2, 6))},
                       detail="OLTC 헌팅: 탭 반복 왕복 -> 6.6kV 하위 전체 전압 진동")
         elif typ == "voltage_sag":
-            ev.update(end=t0 + int(rng.integers(1, 10)), target="BUS_154kV",
+            ev.update(end=t0 + int(rng.integers(1, 10)) + (int(rng.integers(0, 3)) * SPM if v2 else 0), target="BUS_154kV",
                       params={"depth": float(rng.uniform(0.10, 0.25))},
                       detail="154kV 계통 순간전압강하(3~30초): 전 설비 전압 동시 하락")
+        elif typ == "hidden_load":
+            node = mvfeed[int(rng.integers(len(mvfeed)))]
+            ev.update(end=min(n_total - 1, t0 + int(rng.uniform(90, 300) * SPM)), target=node,
+                      params={"frac": float(rng.uniform(0.04, 0.10)), "pf": float(rng.uniform(0.80, 0.92)),
+                              "ramp": int(rng.uniform(3, 20) * SPM)},
+                      detail="미계량 부하/누설: 피더 P·I 증가, 하위 ACB 합 불변 -> KCL 불일치(설비 내부 물리식은 성립)")
+        elif typ == "pt_drift":
+            node = vnodes[int(rng.integers(len(vnodes)))]
+            ramp = int(rng.uniform(40, 150) * SPM)
+            ev.update(end=min(n_total - 1, t0 + ramp + int(rng.uniform(60, 200) * SPM)), target=node,
+                      params={"gain": float(1 + rng.choice([-1, 1]) * rng.uniform(0.006, 0.018)), "ramp": ramp},
+                      detail="PT 비 드리프트: V와 P가 같은 비율로 변화(내부 물리식 성립), 같은 모선 형제 설비 전압과 불일치")
         elif typ == "comm_loss":
             node = analog_nodes[int(rng.integers(len(analog_nodes)))]
             ev.update(kind="data_quality", end=min(n_total - 1, t0 + int(rng.uniform(10, 120) * SPM)),
@@ -452,6 +530,7 @@ class Simulator:
         self.topo_cache: dict[bytes, tuple] = {}
         self.hunt_hold: dict[str, float] = {}
         self.sensor_noise_seed = int(rng.integers(1 << 31))
+        self.sys_state: dict[str, float] = {}
 
     # --- 부하 --------------------------------------------------------------
     def _loads(self, t_abs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -463,9 +542,34 @@ class Simulator:
         Q = np.empty_like(P)
         phi, sd = 0.995, 0.015
         b = [np.sqrt(1 - phi ** 2) * sd]
+        v2 = sc.profile == "v2"
+        if v2:
+            dtype_ = sc.daytype[np.clip(day_idx, 0, sc.days - 1)]
+            amb = sc.amb_min[np.clip(t_abs // SPM, 0, len(sc.amb_min) - 1)]
+            common = {}
+            for sysn in sorted({self.p.system_of(ls.node) for ls in sc.loads}):   # 계통(라인) 공통 생산 변동
+                w = self.rng.standard_normal(n)
+                st = self.sys_state.get(sysn, 0.0)
+                c, _ = lfilter([np.sqrt(1 - 0.9998 ** 2) * 0.025], [1, -0.9998], w, zi=[0.9998 * st])
+                self.sys_state[sysn] = c[-1]
+                common[sysn] = c
         for i, ls in enumerate(sc.loads):
             daily = 1 + ls.daily_amp * np.sin(2 * np.pi * (hours - ls.phase_h + 6) / 24)
             week = np.where(weekday, 1.0, 0.96)
+            if v2 and ls.sign > 0:
+                week = np.choose(dtype_, DAY_FACTOR[ls.kind])
+                if ls.kind == "process":     # 3교대 교대 시각(07/15/23시) 전후 일시 감소
+                    daily = daily - sum(0.035 * np.exp(-0.5 * (((hours - h + 12) % 24 - 12) / 0.25) ** 2) for h in (7, 15, 23))
+                    daily = daily * (1 + common[self.p.system_of(ls.node)])
+                elif ls.kind == "office":    # 근무시간 + 점심 감소, 휴일에는 기저부하만
+                    work = 1 / (1 + np.exp(-(hours - 8.3) * 3)) - 1 / (1 + np.exp(-(hours - 19.0) * 2))
+                    work = np.where(dtype_ == 0, work, 0.15 * work)
+                    lunch = 0.12 * np.exp(-0.5 * ((hours - 12.5) / 0.4) ** 2) * (dtype_ == 0)
+                    daily = (0.45 + 0.55 * work - lunch) / 0.9
+                    week = np.ones(n)
+                else:                        # 공조: 외기온도 냉방도(16°C 기준) + 운전시간대
+                    occ = np.where((hours > 6) & (hours < 22), 1.0, 0.75)
+                    daily = (0.45 + ls.hvac * np.maximum(amb - 16.0, 0) * 3.0) * occ
             step = np.zeros(n)
             for a, bb, frac in sc.steps.get(ls.node, ()):
                 lo, hi = max(a, t_abs[0]), min(bb, t_abs[-1] + 1)
@@ -498,7 +602,7 @@ class Simulator:
                 _, sw, val = chg[self.sw_ptr]
                 self.state[self.p.sw_idx[sw]] = val
                 self.sw_ptr += 1
-            if k % (5 * SPM) == 0:   # 5분 주기 역률 제어, 목표 Q 잔여 >= 15%
+            if t % (5 * SPM) == 0:   # 5분 주기 역률 제어, 목표 Q 잔여 >= 15% (절대 시각 기준)
                 for sysn, caps in self.sc.cap_groups.items():
                     want = int(np.clip(np.floor((cap_q[sysn][k] * 0.85) / CAP_STEP_KVAR), 0, len(caps)))
                     cur = self.cap_on[sysn]
@@ -520,14 +624,24 @@ class Simulator:
 
     # --- 하루 시뮬레이션 ------------------------------------------------------
     def run_day(self, d: int) -> dict[str, np.ndarray]:
+        return self.run_block(d * SPD, SPD)
+
+    def run_block(self, t0: int, n: int) -> dict[str, np.ndarray]:
+        """[t0, t0+n) 3초 샘플 구간 시뮬레이션. 상태(부하 AR·탭·온도·스위치)는 호출 사이에 이월된다
+        (일 단위 생성은 run_day, 데모 실시간 스트림은 1분(20샘플) 단위로 호출)."""
         p, sc = self.p, self.sc
-        t0 = d * SPD
-        n = SPD
         t_abs = np.arange(t0, t0 + n)
         P_load, Q_load = self._loads(t_abs)
         S = self._switch_matrix(t0, n, P_load, Q_load)
 
         evs = [e for e in sc.events if e["start"] < t0 + n and e["end"] >= t0]
+        hidden = {}                                   # 피더 노드 -> (P, Q) 미계량 부하 (3초 해상도)
+        for e in evs:
+            if e["type"] == "hidden_load":
+                a, b2 = max(e["start"], t0) - t0, min(e["end"] + 1, t0 + n) - t0
+                ramp = np.clip((np.arange(a, b2) + t0 - e["start"]) / max(e["params"]["ramp"], 1), 0, 1)
+                Ph = np.zeros(n); Ph[a:b2] = e["params"]["extra_kw"] * ramp * (1 + 0.02 * self.rng.standard_normal(b2 - a))
+                hidden[e["target"]] = (Ph, Ph * np.tan(np.arccos(e["params"]["pf"])))
 
         # 154kV 모선 전압: 느린 랜덤워크 + 일중 변동 + 순간전압강하
         w = self.rng.standard_normal(n)
@@ -566,6 +680,9 @@ class Simulator:
                 elif p.etype[v] == "VCS_CAP":
                     Qt[v] -= CAP_STEP_KVAR
                     Pt[v] += 0.003 * CAP_STEP_KVAR
+                if v in hidden:
+                    Pt[v] += hidden[v][0][sl]
+                    Qt[v] += hidden[v][1][sl]
             for v in reversed(order):
                 t = p.etype[v]
                 if t in ("BTR", "LTR"):
@@ -646,6 +763,8 @@ class Simulator:
 
         # 온도
         hours_amb = 24 + 3 * np.sin(2 * np.pi * (hours - 9) / 24)
+        if sc.profile == "v2":                       # 전기실 실내온도: 공조로 외기 영향 완화
+            hours_amb = 22.0 + 0.35 * (sc.amb_min[np.clip(t_abs // SPM, 0, len(sc.amb_min) - 1)] - 20.0)
         out: dict[str, np.ndarray] = {}
         for b in self.btrs:
             i = node_i[b]
@@ -737,6 +856,11 @@ def apply_sensor(truth: dict[str, np.ndarray], tags: pd.DataFrame, events: list[
             meas[tgt][a:b] *= -1
         elif typ == "meter_offset":
             meas[tgt][a:b] += e["params"]["offset_frac"] * np.abs(meas[tgt][a:b]).mean()
+        elif typ == "pt_drift":
+            k = np.arange(a, b) + t0 - e["start"]
+            g = 1 + (e["params"]["gain"] - 1) * np.clip(k / e["params"]["ramp"], 0, 1)
+            for q in ("VOLTAGE", "POWER"):
+                meas[f"{tgt}_{q}"][a:b] *= g
         elif typ == "comm_loss":
             for tg in tags_by_node.get(tgt, []):
                 mm = missing.setdefault(tg, np.zeros(n // SPM, dtype=bool))
@@ -808,7 +932,11 @@ def build_labels(events: list[dict], start: pd.Timestamp, days: int, tags: pd.Da
         for m in range(a, min(b, n_min)):
             types[m].add(e["type"])
         tgt = e["target"]
-        if tgt in tags_by_node:
+        if e["type"] == "pt_drift":
+            affected = [f"{tgt}_VOLTAGE", f"{tgt}_POWER"]
+        elif e["type"] == "hidden_load":
+            affected = [f"{tgt}_POWER", f"{tgt}_CURRENT", f"{tgt}_PF"]
+        elif tgt in tags_by_node:
             affected = tags_by_node[tgt]
         elif e["type"] == "voltage_sag":
             affected = tags.loc[tags["QUANTITY"] == "VOLTAGE", "EQP_NAME"].tolist()
@@ -833,12 +961,13 @@ def build_labels(events: list[dict], start: pd.Timestamp, days: int, tags: pd.Da
 # main
 # ---------------------------------------------------------------------------
 def generate(out_dir: Path, days: int, seed: int, start: str, anomalies_per_day: float,
-             egms_path: str | None, write_truth: bool) -> None:
+             egms_path: str | None, write_truth: bool, profile: str = "v1", eval_days: int = 0,
+             eval_per_type: int = 0) -> None:
     rng = np.random.default_rng(seed)
     g, egms_dir = load_egms_grid(egms_path)
     plant = Plant.from_grid(g)
     start_ts = pd.Timestamp(start)
-    sc = design_scenario(plant, days, start_ts, rng, anomalies_per_day)
+    sc = design_scenario(plant, days, start_ts, rng, anomalies_per_day, profile, eval_days, eval_per_type)
     tags = build_tag_table(plant)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -874,7 +1003,7 @@ def generate(out_dir: Path, days: int, seed: int, start: str, anomalies_per_day:
         print(f"[{d + 1}/{days}] {fn.name}: {len(rows):,} rows")
 
     meta = {
-        "generator": "src/data/synth_fmcs.py", "seed": seed, "days": days, "start": str(start_ts),
+        "generator": "src/data/synth_fmcs.py", "profile": profile, "eval_days": eval_days, "eval_per_type": eval_per_type, "seed": seed, "days": days, "start": str(start_ts),
         "egms_build_topology": str(egms_dir / "build_topology.py"),
         "n_nodes": len(plant.names), "n_edges": len(plant.edges), "n_tags": len(tags),
         "n_events": {k: int((events_df["kind"] == k).sum()) for k in ("operational", "anomaly", "data_quality")},
@@ -902,8 +1031,13 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, default=ROOT / "fmcs_synth")
     ap.add_argument("--egms-path", default=None)
     ap.add_argument("--write-truth", action="store_true", help="잡음/계측이상 전 3초 참값 parquet도 저장")
+    ap.add_argument("--profile", choices=["v1", "v2"], default="v1", help="v2 = 부하유형·기상·휴일·관계형 이상 반영")
+    ap.add_argument("--eval-days", type=int, default=0, help="v2: 마지막 N일(평가 구간)에 유형별 층화 이상 배치")
+    ap.add_argument("--eval-per-type", type=int, default=3)
     a = ap.parse_args()
-    generate(a.out_dir, a.days, a.seed, a.start, a.anomalies_per_day, a.egms_path, a.write_truth)
+    generate(a.out_dir, a.days, a.seed, a.start, a.anomalies_per_day, a.egms_path, a.write_truth, a.profile,
+             a.eval_days, a.eval_per_type)
+
 
 
 if __name__ == "__main__":

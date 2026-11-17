@@ -1,0 +1,46 @@
+// goclaw: 수배전 진단 에이전트 (SQLite 단일 사용자, 로컬 전용)
+// LLM 경로: goclaw(openai 제공자) → LiteLLM 프록시 127.0.0.1:4000 → Google Gemini
+// 도구: 데모 서버(~/SCADA/demo/server.py)의 MCP 스트리밍 HTTP 127.0.0.1:8766/mcp — setup_agent.sh가 API로 등록
+//  (goclaw 보안 정책상 stdio는 경로 없는 python만 허용 → venv 파이썬을 못 써서 HTTP 방식으로 전환. 이전 설정: config.stdio.bak.json)
+{
+  "gateway": {
+    "host": "127.0.0.1",
+    "port": 18790,
+    "mcp_allowed_hosts": [
+      "127.0.0.1",
+      "localhost"
+    ]
+  },
+  "providers": {
+    "openai": {
+      "api_key": "env:GOCLAW_OPENAI_API_KEY",
+      "api_base": "http://127.0.0.1:4000/v1"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/Users/keeheunjeong/agents/goclaw-scada/workspace",
+      "restrict_to_workspace": true,
+      "provider": "openai",
+      "model": "scada-gemini",
+      "max_tokens": 4096,
+      "temperature": 0.2,
+      "max_tool_iterations": 12,
+      "max_tool_calls": 20
+    },
+    "list": {
+      "scada-diag": {
+        "displayName": "SCADA 진단 에이전트",
+        "default": true,
+        "agent_type": "predefined",
+        "identity": {
+          "name": "SCADA 진단",
+          "emoji": "⚡"
+        },
+        "tools": {
+          "profile": "minimal"
+        }
+      }
+    }
+  }
+}

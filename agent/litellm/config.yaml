@@ -1,0 +1,25 @@
+# LiteLLM 프록시: goclaw(OpenAI 호환) → LiteLLM → Google Gemini
+# 키는 .env의 GEMINI_API_KEY (Google AI Studio 무료 키)
+model_list:
+  # 2026-10-28 실측: gemini-flash-latest는 503(과부하) 잦음, lite 계열은 약 2초 응답
+  - model_name: scada-gemini                     # goclaw가 부르는 이름
+    litellm_params:
+      model: gemini/gemini-flash-lite-latest
+      api_key: os.environ/GEMINI_API_KEY
+      timeout: 45
+  - model_name: scada-gemini-lite                # 오류·한도 초과 시 대체
+    litellm_params:
+      model: gemini/gemini-3.5-flash
+      api_key: os.environ/GEMINI_API_KEY
+      timeout: 60
+
+router_settings:
+  num_retries: 1
+  fallbacks:
+    - scada-gemini: [scada-gemini-lite]
+
+litellm_settings:
+  drop_params: true                              # Gemini가 모르는 OpenAI 파라미터는 버림
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY      # goclaw → LiteLLM 인증 (로컬 전용)

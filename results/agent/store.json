@@ -1,0 +1,2711 @@
+{
+ "model": "GDN-prior",
+ "data": "fmcs_synth_v2",
+ "period": [
+  "2026-10-07 00:00:00",
+  "2026-10-18 23:59:00"
+ ],
+ "threshold": 117.88,
+ "n_alarms": 36,
+ "alarms": [
+  {
+   "id": "AL001",
+   "start": "2026-10-07 00:44:00",
+   "end": "2026-10-07 01:34:00",
+   "minutes": 51,
+   "peak_score": 729.1,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11A",
+    "GCB_3U11A",
+    "ACB_3F14A4"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11A_KCL",
+     "node": "BTR_3U11A",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1670.7
+    },
+    {
+     "feature": "GCB_3U11A_KCL",
+     "node": "GCB_3U11A",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1584.4
+    },
+    {
+     "feature": "BTR_3U11A_TAP",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 17.2
+    },
+    {
+     "feature": "ACB_3F14A4_PF",
+     "node": "ACB_3F14A4",
+     "kind": "태그",
+     "score": 13.9
+    },
+    {
+     "feature": "VCB_3F14A4_PF",
+     "node": "VCB_3F14A4",
+     "kind": "태그",
+     "score": 9.3
+    },
+    {
+     "feature": "LTR_3F15C1_LOAD",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 9.2
+    },
+    {
+     "feature": "ACB_3F13A3_PF",
+     "node": "ACB_3F13A3",
+     "kind": "태그",
+     "score": 9.0
+    },
+    {
+     "feature": "LTR_3F15C1_TEMP_W",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 8.7
+    },
+    {
+     "feature": "ACB_3F15C1_POWER",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 8.7
+    },
+    {
+     "feature": "LTR_3F15C1_TEMP_C",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 7.8
+    }
+   ]
+  },
+  {
+   "id": "AL002",
+   "start": "2026-10-07 01:51:00",
+   "end": "2026-10-07 04:02:00",
+   "minutes": 132,
+   "peak_score": 727.8,
+   "threshold": 117.88,
+   "top_nodes": [
+    "GCB_3F15B",
+    "VCB_3F11A5",
+    "GCB_3U11A"
+   ],
+   "top_features": [
+    {
+     "feature": "GCB_3F15B_KCL",
+     "node": "GCB_3F15B",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1142.5
+    },
+    {
+     "feature": "VCB_3F11A5_KCL",
+     "node": "VCB_3F11A5",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 661.5
+    },
+    {
+     "feature": "GCB_3U11A_KCL",
+     "node": "GCB_3U11A",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 88.1
+    },
+    {
+     "feature": "BTR_3U11A_KCL",
+     "node": "BTR_3U11A",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 83.7
+    },
+    {
+     "feature": "LTR_3F11A5_TEMP_W",
+     "node": "LTR_3F11A5",
+     "kind": "태그",
+     "score": 43.4
+    },
+    {
+     "feature": "BTR_3F15B_VOLTAGE",
+     "node": "BTR_3F15B",
+     "kind": "태그",
+     "score": 36.6
+    },
+    {
+     "feature": "LTR_3F15C1_TEMP_C",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 8.7
+    },
+    {
+     "feature": "LTR_3F15C1_TEMP_W",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 8.1
+    },
+    {
+     "feature": "ACB_3F15C1_POWER",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 7.5
+    },
+    {
+     "feature": "VCB_3F14A4_PF",
+     "node": "VCB_3F14A4",
+     "kind": "태그",
+     "score": 7.0
+    }
+   ]
+  },
+  {
+   "id": "AL003",
+   "start": "2026-10-07 04:19:00",
+   "end": "2026-10-07 06:46:00",
+   "minutes": 148,
+   "peak_score": 2098.0,
+   "threshold": 117.88,
+   "top_nodes": [
+    "LTR_3F12A6",
+    "VCB_3F12A6",
+    "LTR_3F11A5"
+   ],
+   "top_features": [
+    {
+     "feature": "LTR_3F12A6_TEMP_C",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 2810.5
+    },
+    {
+     "feature": "VCB_3F12A6_PF",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 2290.2
+    },
+    {
+     "feature": "VCB_3F12A6_RESID",
+     "node": "VCB_3F12A6",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1615.8
+    },
+    {
+     "feature": "VCB_3F12A6_CURRENT",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 1399.2
+    },
+    {
+     "feature": "VCB_3F12A6_STATUS",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 823.8
+    },
+    {
+     "feature": "LTR_3F12A6_LOAD",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 438.9
+    },
+    {
+     "feature": "LTR_3F12A6_STATUS",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 395.0
+    },
+    {
+     "feature": "VCB_3F12A6_POWER",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 390.4
+    },
+    {
+     "feature": "LTR_3F12A6_TEMP_W",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 109.9
+    },
+    {
+     "feature": "LTR_3F11A5_TEMP_W",
+     "node": "LTR_3F11A5",
+     "kind": "태그",
+     "score": 45.9
+    }
+   ]
+  },
+  {
+   "id": "AL004",
+   "start": "2026-10-07 10:16:00",
+   "end": "2026-10-07 12:36:00",
+   "minutes": 141,
+   "peak_score": 753.8,
+   "threshold": 117.88,
+   "top_nodes": [
+    "MAIN_3F14B",
+    "BTR_3F14B",
+    "BTR_3U11A"
+   ],
+   "top_features": [
+    {
+     "feature": "MAIN_3F14B_RESID",
+     "node": "MAIN_3F14B",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 2112.0
+    },
+    {
+     "feature": "MAIN_3F14B_PF",
+     "node": "MAIN_3F14B",
+     "kind": "태그",
+     "score": 1426.6
+    },
+    {
+     "feature": "BTR_3F14B_CURRENT",
+     "node": "BTR_3F14B",
+     "kind": "태그",
+     "score": 25.6
+    },
+    {
+     "feature": "MAIN_3F14B_CURRENT",
+     "node": "MAIN_3F14B",
+     "kind": "태그",
+     "score": 24.0
+    },
+    {
+     "feature": "BTR_3U11A_TAP",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 17.7
+    },
+    {
+     "feature": "BTR_3F14B_POWER",
+     "node": "BTR_3F14B",
+     "kind": "태그",
+     "score": 16.0
+    },
+    {
+     "feature": "BTR_3F14B_KCL",
+     "node": "BTR_3F14B",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 11.2
+    },
+    {
+     "feature": "ACB_3F15A5_POWER",
+     "node": "ACB_3F15A5",
+     "kind": "태그",
+     "score": 9.0
+    },
+    {
+     "feature": "BTR_3F14B_LOAD",
+     "node": "BTR_3F14B",
+     "kind": "태그",
+     "score": 8.2
+    },
+    {
+     "feature": "ACB_3F15A5_CURRENT",
+     "node": "ACB_3F15A5",
+     "kind": "태그",
+     "score": 6.3
+    }
+   ]
+  },
+  {
+   "id": "AL005",
+   "start": "2026-10-07 19:32:00",
+   "end": "2026-10-07 21:45:00",
+   "minutes": 134,
+   "peak_score": 999.0,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F12A6",
+    "ACB_3F12A6",
+    "LTR_3F12A6"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F12A6_KCL",
+     "node": "VCB_3F12A6",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 2738.8
+    },
+    {
+     "feature": "ACB_3F12A6_RESID",
+     "node": "ACB_3F12A6",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1835.6
+    },
+    {
+     "feature": "ACB_3F12A6_CURRENT",
+     "node": "ACB_3F12A6",
+     "kind": "태그",
+     "score": 137.3
+    },
+    {
+     "feature": "VCB_3F12A6_POWER",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 17.8
+    },
+    {
+     "feature": "LTR_3F12A6_TEMP_W",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 11.5
+    },
+    {
+     "feature": "LTR_3F12A6_TEMP_C",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 5.5
+    },
+    {
+     "feature": "LTR_3F12A6_LOAD",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "VCB_3F13A3_VOLTAGE",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 3.4
+    },
+    {
+     "feature": "LTR_3F13A2_LOAD",
+     "node": "LTR_3F13A2",
+     "kind": "태그",
+     "score": 3.1
+    },
+    {
+     "feature": "VCB_3F13A2_CURRENT",
+     "node": "VCB_3F13A2",
+     "kind": "태그",
+     "score": 3.0
+    }
+   ]
+  },
+  {
+   "id": "AL006",
+   "start": "2026-10-08 12:42:00",
+   "end": "2026-10-08 15:10:00",
+   "minutes": 149,
+   "peak_score": 515.5,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F12C3",
+    "LTR_3F12C3",
+    "BTR_3F11B"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F12C3_KCL",
+     "node": "VCB_3F12C3",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1993.0
+    },
+    {
+     "feature": "VCB_3F12C3_CURRENT",
+     "node": "VCB_3F12C3",
+     "kind": "태그",
+     "score": 174.5
+    },
+    {
+     "feature": "LTR_3F12C3_TEMP_W",
+     "node": "LTR_3F12C3",
+     "kind": "태그",
+     "score": 149.8
+    },
+    {
+     "feature": "BTR_3F11B_LOAD",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 30.8
+    },
+    {
+     "feature": "GCB_3F11B_POWER",
+     "node": "GCB_3F11B",
+     "kind": "태그",
+     "score": 27.1
+    },
+    {
+     "feature": "MAIN_3F11B_CURRENT",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 26.9
+    },
+    {
+     "feature": "MAIN_3F11B_POWER",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 26.5
+    },
+    {
+     "feature": "GCB_3F11B_CURRENT",
+     "node": "GCB_3F11B",
+     "kind": "태그",
+     "score": 25.2
+    },
+    {
+     "feature": "BTR_3F11B_POWER",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 15.4
+    },
+    {
+     "feature": "BTR_3F11B_CURRENT",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 15.2
+    }
+   ]
+  },
+  {
+   "id": "AL007",
+   "start": "2026-10-08 21:49:00",
+   "end": "2026-10-08 22:09:00",
+   "minutes": 21,
+   "peak_score": 3498.3,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11B",
+    "ACB_3F13A6",
+    "ACB_3F13C4"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11B_CURRENT",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 1465.6
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 708.2
+    },
+    {
+     "feature": "ACB_3F13C4_VOLTAGE",
+     "node": "ACB_3F13C4",
+     "kind": "태그",
+     "score": 675.8
+    },
+    {
+     "feature": "ACB_3F15C1_VOLTAGE",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 672.3
+    },
+    {
+     "feature": "TIE_3F15AC1_STATUS",
+     "node": "TIE_3F15AC1",
+     "kind": "태그",
+     "score": 648.3
+    },
+    {
+     "feature": "ACB_3F15C2_VOLTAGE",
+     "node": "ACB_3F15C2",
+     "kind": "태그",
+     "score": 607.8
+    },
+    {
+     "feature": "GCB_3F12B_CURRENT",
+     "node": "GCB_3F12B",
+     "kind": "태그",
+     "score": 601.0
+    },
+    {
+     "feature": "MAIN_3F11A_VOLTAGE",
+     "node": "MAIN_3F11A",
+     "kind": "태그",
+     "score": 593.8
+    },
+    {
+     "feature": "ACB_3F11C4_VOLTAGE",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 581.2
+    },
+    {
+     "feature": "ACB_3F11A6X_STATUS",
+     "node": "ACB_3F11A6X",
+     "kind": "태그",
+     "score": 576.3
+    }
+   ]
+  },
+  {
+   "id": "AL008",
+   "start": "2026-10-09 04:01:00",
+   "end": "2026-10-09 04:21:00",
+   "minutes": 21,
+   "peak_score": 4329.5,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11B",
+    "ACB_3F15C1",
+    "TIE_3F15AC1"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11B_CURRENT",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 1960.2
+    },
+    {
+     "feature": "ACB_3F15C1_VOLTAGE",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 927.7
+    },
+    {
+     "feature": "TIE_3F15AC1_STATUS",
+     "node": "TIE_3F15AC1",
+     "kind": "태그",
+     "score": 881.3
+    },
+    {
+     "feature": "ACB_3F15C2_VOLTAGE",
+     "node": "ACB_3F15C2",
+     "kind": "태그",
+     "score": 872.1
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 832.7
+    },
+    {
+     "feature": "ACB_3F13C4_VOLTAGE",
+     "node": "ACB_3F13C4",
+     "kind": "태그",
+     "score": 800.6
+    },
+    {
+     "feature": "ACB_3F11C4_VOLTAGE",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 766.8
+    },
+    {
+     "feature": "ACB_3F11A6X_STATUS",
+     "node": "ACB_3F11A6X",
+     "kind": "태그",
+     "score": 716.4
+    },
+    {
+     "feature": "MAIN_3F11A_VOLTAGE",
+     "node": "MAIN_3F11A",
+     "kind": "태그",
+     "score": 690.2
+    },
+    {
+     "feature": "GCB_3F12B_CURRENT",
+     "node": "GCB_3F12B",
+     "kind": "태그",
+     "score": 684.1
+    }
+   ]
+  },
+  {
+   "id": "AL009",
+   "start": "2026-10-09 06:21:00",
+   "end": "2026-10-09 10:49:00",
+   "minutes": 269,
+   "peak_score": 3725.7,
+   "threshold": 117.88,
+   "top_nodes": [
+    "LTR_3F12A5",
+    "VCB_3F12A5"
+   ],
+   "top_features": [
+    {
+     "feature": "LTR_3F12A5_STATUS",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 11536.7
+    },
+    {
+     "feature": "LTR_3F12A5_TEMP_C",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 1680.5
+    },
+    {
+     "feature": "VCB_3F12A5_KCL",
+     "node": "VCB_3F12A5",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1478.1
+    },
+    {
+     "feature": "VCB_3F12A5_CURRENT",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 743.2
+    },
+    {
+     "feature": "VCB_3F12A5_POWER",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 453.3
+    },
+    {
+     "feature": "LTR_3F12A5_LOAD",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 385.2
+    },
+    {
+     "feature": "VCB_3F12A5_STATUS",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 240.6
+    },
+    {
+     "feature": "VCB_3F12A5_PF",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 81.9
+    },
+    {
+     "feature": "VCB_3F12A5_VOLTAGE",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 27.6
+    },
+    {
+     "feature": "LTR_3F12A5_TEMP_W",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 21.0
+    }
+   ]
+  },
+  {
+   "id": "AL010",
+   "start": "2026-10-09 23:53:00",
+   "end": "2026-10-10 00:04:00",
+   "minutes": 12,
+   "peak_score": 375.0,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F15A2",
+    "ACB_3F13A3",
+    "VCB_3F13A3"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F15A2_RESID",
+     "node": "VCB_3F15A2",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1160.2
+    },
+    {
+     "feature": "ACB_3F13A3_PF",
+     "node": "ACB_3F13A3",
+     "kind": "태그",
+     "score": 17.8
+    },
+    {
+     "feature": "VCB_3F13A3_VOLTAGE",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 17.5
+    },
+    {
+     "feature": "MAIN_3F12B_PF",
+     "node": "MAIN_3F12B",
+     "kind": "태그",
+     "score": 14.5
+    },
+    {
+     "feature": "VCB_3F13A3_PF",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 11.6
+    },
+    {
+     "feature": "VCB_3F15A2_CURRENT",
+     "node": "VCB_3F15A2",
+     "kind": "태그",
+     "score": 10.5
+    },
+    {
+     "feature": "VCB_3F15A2_KCL",
+     "node": "VCB_3F15A2",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 10.4
+    },
+    {
+     "feature": "VCB_3F14A1_STATUS",
+     "node": "VCB_3F14A1",
+     "kind": "태그",
+     "score": 9.7
+    },
+    {
+     "feature": "LTR_3F14A3_LOAD",
+     "node": "LTR_3F14A3",
+     "kind": "태그",
+     "score": 9.6
+    },
+    {
+     "feature": "BTR_3F12B_PF",
+     "node": "BTR_3F12B",
+     "kind": "태그",
+     "score": 8.8
+    }
+   ]
+  },
+  {
+   "id": "AL011",
+   "start": "2026-10-10 13:51:00",
+   "end": "2026-10-10 13:56:00",
+   "minutes": 6,
+   "peak_score": 240.2,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F11A5",
+    "VCB_3F11A5",
+    "VCB_3F11C4"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F11A5_RESID",
+     "node": "ACB_3F11A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 301.1
+    },
+    {
+     "feature": "VCB_3F11A5_RESID",
+     "node": "VCB_3F11A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 293.5
+    },
+    {
+     "feature": "VCB_3F11A5_VOLTAGE",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 190.0
+    },
+    {
+     "feature": "ACB_3F11A5_VOLTAGE",
+     "node": "ACB_3F11A5",
+     "kind": "태그",
+     "score": 153.4
+    },
+    {
+     "feature": "VCB_3F11C4_CURRENT",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 52.7
+    },
+    {
+     "feature": "BTR_3F11B_CURRENT",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 44.4
+    },
+    {
+     "feature": "VCB_3F11C4_POWER",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 43.0
+    },
+    {
+     "feature": "ACB_3F11A5_PF",
+     "node": "ACB_3F11A5",
+     "kind": "태그",
+     "score": 42.7
+    },
+    {
+     "feature": "BTR_3F11B_LOAD",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 37.3
+    },
+    {
+     "feature": "VCB_3F11A5_PF",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 36.3
+    }
+   ]
+  },
+  {
+   "id": "AL012",
+   "start": "2026-10-11 02:37:00",
+   "end": "2026-10-11 03:23:00",
+   "minutes": 47,
+   "peak_score": 1818.7,
+   "threshold": 117.88,
+   "top_nodes": [
+    "GCB_3F13B",
+    "ACB_3F13A6",
+    "ACB_3F13A1"
+   ],
+   "top_features": [
+    {
+     "feature": "GCB_3F13B_CURRENT",
+     "node": "GCB_3F13B",
+     "kind": "태그",
+     "score": 1376.1
+    },
+    {
+     "feature": "GCB_3F13B_POWER",
+     "node": "GCB_3F13B",
+     "kind": "태그",
+     "score": 545.0
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 224.0
+    },
+    {
+     "feature": "GCB_3F13B_KCL",
+     "node": "GCB_3F13B",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 120.4
+    },
+    {
+     "feature": "ACB_3F13A1_VOLTAGE",
+     "node": "ACB_3F13A1",
+     "kind": "태그",
+     "score": 108.0
+    },
+    {
+     "feature": "ACB_3F13A5_RESID",
+     "node": "ACB_3F13A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 105.1
+    },
+    {
+     "feature": "ACB_3F13A2_RESID",
+     "node": "ACB_3F13A2",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 104.8
+    },
+    {
+     "feature": "VCB_3F13A5_RESID",
+     "node": "VCB_3F13A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 86.9
+    },
+    {
+     "feature": "ACB_3F13A1_RESID",
+     "node": "ACB_3F13A1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 72.3
+    },
+    {
+     "feature": "VCB_3F13A2_RESID",
+     "node": "VCB_3F13A2",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 71.0
+    }
+   ]
+  },
+  {
+   "id": "AL013",
+   "start": "2026-10-11 10:44:00",
+   "end": "2026-10-11 10:54:00",
+   "minutes": 11,
+   "peak_score": 315.8,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F11A5",
+    "ACB_3F11C4",
+    "MAIN_3F11B"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F11A5_KCL",
+     "node": "VCB_3F11A5",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 992.5
+    },
+    {
+     "feature": "VCB_3F11A5_VOLTAGE",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 29.8
+    },
+    {
+     "feature": "VCB_3F11A5_PF",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 8.2
+    },
+    {
+     "feature": "VCB_3F11A5_CURRENT",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 5.1
+    },
+    {
+     "feature": "ACB_3F11C4_POWER",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 4.9
+    },
+    {
+     "feature": "MAIN_3F11B_POWER",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "ACB_3F11C4_CURRENT",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "LTR_3F11A5_LOAD",
+     "node": "LTR_3F11A5",
+     "kind": "태그",
+     "score": 4.4
+    },
+    {
+     "feature": "LTR_3F11A5_TEMP_W",
+     "node": "LTR_3F11A5",
+     "kind": "태그",
+     "score": 4.1
+    },
+    {
+     "feature": "LTR_3F11C4_LOAD",
+     "node": "LTR_3F11C4",
+     "kind": "태그",
+     "score": 3.7
+    }
+   ]
+  },
+  {
+   "id": "AL014",
+   "start": "2026-10-11 11:17:00",
+   "end": "2026-10-11 12:24:00",
+   "minutes": 68,
+   "peak_score": 428.8,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F11A5",
+    "LTR_3F11A5",
+    "ACB_3F12C2"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F11A5_KCL",
+     "node": "VCB_3F11A5",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 1502.3
+    },
+    {
+     "feature": "LTR_3F11A5_TEMP_W",
+     "node": "LTR_3F11A5",
+     "kind": "태그",
+     "score": 78.0
+    },
+    {
+     "feature": "VCB_3F11A5_VOLTAGE",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 5.9
+    },
+    {
+     "feature": "ACB_3F12C2_CURRENT",
+     "node": "ACB_3F12C2",
+     "kind": "태그",
+     "score": 4.6
+    },
+    {
+     "feature": "LTR_3F12C2_LOAD",
+     "node": "LTR_3F12C2",
+     "kind": "태그",
+     "score": 3.3
+    },
+    {
+     "feature": "VCB_3U11A1_CURRENT",
+     "node": "VCB_3U11A1",
+     "kind": "태그",
+     "score": 2.8
+    },
+    {
+     "feature": "ACB_3F12C2_POWER",
+     "node": "ACB_3F12C2",
+     "kind": "태그",
+     "score": 2.8
+    },
+    {
+     "feature": "ACB_3U11A1_CURRENT",
+     "node": "ACB_3U11A1",
+     "kind": "태그",
+     "score": 2.7
+    },
+    {
+     "feature": "ACB_3F11A5_CURRENT",
+     "node": "ACB_3F11A5",
+     "kind": "태그",
+     "score": 2.7
+    },
+    {
+     "feature": "VCB_3F14A3_PF",
+     "node": "VCB_3F14A3",
+     "kind": "태그",
+     "score": 2.7
+    }
+   ]
+  },
+  {
+   "id": "AL015",
+   "start": "2026-10-12 04:37:00",
+   "end": "2026-10-12 09:17:00",
+   "minutes": 281,
+   "peak_score": 2518.2,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F12A4",
+    "ACB_3F12A4",
+    "GCB_3F13B"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F12A4_KCL",
+     "node": "VCB_3F12A4",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 2517.8
+    },
+    {
+     "feature": "ACB_3F12A4_RESID",
+     "node": "ACB_3F12A4",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1307.9
+    },
+    {
+     "feature": "GCB_3F13B_CURRENT",
+     "node": "GCB_3F13B",
+     "kind": "태그",
+     "score": 483.5
+    },
+    {
+     "feature": "GCB_3F13B_POWER",
+     "node": "GCB_3F13B",
+     "kind": "태그",
+     "score": 183.7
+    },
+    {
+     "feature": "GCB_3F13B_KCL",
+     "node": "GCB_3F13B",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 69.9
+    },
+    {
+     "feature": "VCB_3F12A4_PF",
+     "node": "VCB_3F12A4",
+     "kind": "태그",
+     "score": 52.3
+    },
+    {
+     "feature": "VCB_3F12A4_VOLTAGE",
+     "node": "VCB_3F12A4",
+     "kind": "태그",
+     "score": 47.9
+    },
+    {
+     "feature": "ACB_3F12A4X_STATUS",
+     "node": "ACB_3F12A4X",
+     "kind": "태그",
+     "score": 46.9
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 27.1
+    },
+    {
+     "feature": "ACB_3F12A4_POWER",
+     "node": "ACB_3F12A4",
+     "kind": "태그",
+     "score": 18.8
+    }
+   ]
+  },
+  {
+   "id": "AL016",
+   "start": "2026-10-12 13:34:00",
+   "end": "2026-10-12 16:49:00",
+   "minutes": 196,
+   "peak_score": 227.2,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F12A4",
+    "BTR_3U11A",
+    "MAIN_3U11A"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F12A4_KCL",
+     "node": "VCB_3F12A4",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 971.0
+    },
+    {
+     "feature": "VCB_3F12A4_STATUS",
+     "node": "VCB_3F12A4",
+     "kind": "태그",
+     "score": 47.4
+    },
+    {
+     "feature": "VCB_3F12A4_POWER",
+     "node": "VCB_3F12A4",
+     "kind": "태그",
+     "score": 6.1
+    },
+    {
+     "feature": "BTR_3U11A_POWER",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 6.1
+    },
+    {
+     "feature": "BTR_3U11A_LOAD",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 5.9
+    },
+    {
+     "feature": "MAIN_3U11A_POWER",
+     "node": "MAIN_3U11A",
+     "kind": "태그",
+     "score": 5.6
+    },
+    {
+     "feature": "LTR_3F12A4_TEMP_C",
+     "node": "LTR_3F12A4",
+     "kind": "태그",
+     "score": 5.6
+    },
+    {
+     "feature": "GCB_3U11A_POWER",
+     "node": "GCB_3U11A",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "ACB_3F15A6_POWER",
+     "node": "ACB_3F15A6",
+     "kind": "태그",
+     "score": 4.6
+    },
+    {
+     "feature": "MAIN_3U11A_CURRENT",
+     "node": "MAIN_3U11A",
+     "kind": "태그",
+     "score": 4.3
+    }
+   ]
+  },
+  {
+   "id": "AL017",
+   "start": "2026-10-12 22:33:00",
+   "end": "2026-10-12 22:53:00",
+   "minutes": 21,
+   "peak_score": 3122.6,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11B",
+    "MAIN_3F11A",
+    "ACB_3F15C1"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11B_CURRENT",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 1722.8
+    },
+    {
+     "feature": "MAIN_3F11A_VOLTAGE",
+     "node": "MAIN_3F11A",
+     "kind": "태그",
+     "score": 584.7
+    },
+    {
+     "feature": "ACB_3F15C1_VOLTAGE",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 572.5
+    },
+    {
+     "feature": "ACB_3F15C2_VOLTAGE",
+     "node": "ACB_3F15C2",
+     "kind": "태그",
+     "score": 521.3
+    },
+    {
+     "feature": "ACB_3F13C4_VOLTAGE",
+     "node": "ACB_3F13C4",
+     "kind": "태그",
+     "score": 506.8
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 495.4
+    },
+    {
+     "feature": "ACB_3F11C4_VOLTAGE",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 495.3
+    },
+    {
+     "feature": "ACB_3F11A6X_STATUS",
+     "node": "ACB_3F11A6X",
+     "kind": "태그",
+     "score": 493.1
+    },
+    {
+     "feature": "GCB_3F12B_CURRENT",
+     "node": "GCB_3F12B",
+     "kind": "태그",
+     "score": 465.3
+    },
+    {
+     "feature": "TIE_3F15AC1_STATUS",
+     "node": "TIE_3F15AC1",
+     "kind": "태그",
+     "score": 397.5
+    }
+   ]
+  },
+  {
+   "id": "AL018",
+   "start": "2026-10-13 07:18:00",
+   "end": "2026-10-13 09:42:00",
+   "minutes": 145,
+   "peak_score": 661.2,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F15A6",
+    "LTR_3F14A3",
+    "LTR_3F13A4"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F15A6_RESID",
+     "node": "VCB_3F15A6",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1542.2
+    },
+    {
+     "feature": "VCB_3F15A6_PF",
+     "node": "VCB_3F15A6",
+     "kind": "태그",
+     "score": 333.5
+    },
+    {
+     "feature": "VCB_3F15A6_VOLTAGE",
+     "node": "VCB_3F15A6",
+     "kind": "태그",
+     "score": 311.2
+    },
+    {
+     "feature": "VCB_3F15A6_POWER",
+     "node": "VCB_3F15A6",
+     "kind": "태그",
+     "score": 25.0
+    },
+    {
+     "feature": "VCB_3F15A6_STATUS",
+     "node": "VCB_3F15A6",
+     "kind": "태그",
+     "score": 12.2
+    },
+    {
+     "feature": "LTR_3F14A3_LOAD",
+     "node": "LTR_3F14A3",
+     "kind": "태그",
+     "score": 5.6
+    },
+    {
+     "feature": "LTR_3F13A4_TEMP_C",
+     "node": "LTR_3F13A4",
+     "kind": "태그",
+     "score": 4.5
+    },
+    {
+     "feature": "ACB_3F14A3_CURRENT",
+     "node": "ACB_3F14A3",
+     "kind": "태그",
+     "score": 4.4
+    },
+    {
+     "feature": "ACB_3F13C2_POWER",
+     "node": "ACB_3F13C2",
+     "kind": "태그",
+     "score": 4.4
+    },
+    {
+     "feature": "ACB_3F13C2_CURRENT",
+     "node": "ACB_3F13C2",
+     "kind": "태그",
+     "score": 4.2
+    }
+   ]
+  },
+  {
+   "id": "AL019",
+   "start": "2026-10-14 18:00:00",
+   "end": "2026-10-14 19:51:00",
+   "minutes": 112,
+   "peak_score": 1051.2,
+   "threshold": 117.88,
+   "top_nodes": [
+    "LTR_3F12A5",
+    "ACB_3F12A4",
+    "VCB_3F12A5"
+   ],
+   "top_features": [
+    {
+     "feature": "LTR_3F12A5_STATUS",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 787.6
+    },
+    {
+     "feature": "ACB_3F12A4_RESID",
+     "node": "ACB_3F12A4",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 557.4
+    },
+    {
+     "feature": "VCB_3F12A5_KCL",
+     "node": "VCB_3F12A5",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 360.8
+    },
+    {
+     "feature": "VCB_3F12A5_POWER",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 70.5
+    },
+    {
+     "feature": "VCB_3F12A5_PF",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 55.2
+    },
+    {
+     "feature": "LTR_3F12A5_TEMP_C",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 37.8
+    },
+    {
+     "feature": "VCB_3F12A5_STATUS",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 31.5
+    },
+    {
+     "feature": "VCB_3F12A5_CURRENT",
+     "node": "VCB_3F12A5",
+     "kind": "태그",
+     "score": 28.9
+    },
+    {
+     "feature": "LTR_3F12A5_LOAD",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 28.1
+    },
+    {
+     "feature": "LTR_3F12A5_TEMP_W",
+     "node": "LTR_3F12A5",
+     "kind": "태그",
+     "score": 10.8
+    }
+   ]
+  },
+  {
+   "id": "AL020",
+   "start": "2026-10-14 20:02:00",
+   "end": "2026-10-14 20:08:00",
+   "minutes": 7,
+   "peak_score": 187.1,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F12A4",
+    "LTR_3F13A4",
+    "ACB_3F11A2"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F12A4_RESID",
+     "node": "ACB_3F12A4",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 660.0
+    },
+    {
+     "feature": "ACB_3F12A4_VOLTAGE",
+     "node": "ACB_3F12A4",
+     "kind": "태그",
+     "score": 16.3
+    },
+    {
+     "feature": "LTR_3F13A4_STATUS",
+     "node": "LTR_3F13A4",
+     "kind": "태그",
+     "score": 10.8
+    },
+    {
+     "feature": "ACB_3F12A4_POWER",
+     "node": "ACB_3F12A4",
+     "kind": "태그",
+     "score": 4.5
+    },
+    {
+     "feature": "ACB_3F11A2_PF",
+     "node": "ACB_3F11A2",
+     "kind": "태그",
+     "score": 3.8
+    },
+    {
+     "feature": "MAIN_3F11B_CURRENT",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 3.2
+    },
+    {
+     "feature": "VCB_3F11A2_PF",
+     "node": "VCB_3F11A2",
+     "kind": "태그",
+     "score": 3.2
+    },
+    {
+     "feature": "BTR_3F11B_CURRENT",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 3.1
+    },
+    {
+     "feature": "LTR_3F13A4_LOAD",
+     "node": "LTR_3F13A4",
+     "kind": "태그",
+     "score": 3.1
+    },
+    {
+     "feature": "VCB_3F12A2_CURRENT",
+     "node": "VCB_3F12A2",
+     "kind": "태그",
+     "score": 3.0
+    }
+   ]
+  },
+  {
+   "id": "AL021",
+   "start": "2026-10-14 21:11:00",
+   "end": "2026-10-14 21:28:00",
+   "minutes": 18,
+   "peak_score": 260.3,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F12A4",
+    "VCB_3F12A6",
+    "ACB_3F14A4"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F12A4_RESID",
+     "node": "ACB_3F12A4",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 818.1
+    },
+    {
+     "feature": "ACB_3F12A4_VOLTAGE",
+     "node": "ACB_3F12A4",
+     "kind": "태그",
+     "score": 21.0
+    },
+    {
+     "feature": "VCB_3F12A6_POWER",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 10.1
+    },
+    {
+     "feature": "ACB_3F12A4_POWER",
+     "node": "ACB_3F12A4",
+     "kind": "태그",
+     "score": 9.4
+    },
+    {
+     "feature": "ACB_3F14A4_VOLTAGE",
+     "node": "ACB_3F14A4",
+     "kind": "태그",
+     "score": 8.4
+    },
+    {
+     "feature": "ACB_3F12A6_POWER",
+     "node": "ACB_3F12A6",
+     "kind": "태그",
+     "score": 8.0
+    },
+    {
+     "feature": "VCB_3F14A4_VOLTAGE",
+     "node": "VCB_3F14A4",
+     "kind": "태그",
+     "score": 6.4
+    },
+    {
+     "feature": "VCB_3F12A6_KCL",
+     "node": "VCB_3F12A6",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 5.8
+    },
+    {
+     "feature": "ACB_3F12A6_CURRENT",
+     "node": "ACB_3F12A6",
+     "kind": "태그",
+     "score": 5.5
+    },
+    {
+     "feature": "ACB_3F13A3_VOLTAGE",
+     "node": "ACB_3F13A3",
+     "kind": "태그",
+     "score": 5.1
+    }
+   ]
+  },
+  {
+   "id": "AL022",
+   "start": "2026-10-15 03:04:00",
+   "end": "2026-10-15 03:09:00",
+   "minutes": 6,
+   "peak_score": 157.9,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F14C3",
+    "BTR_3U11A",
+    "VCB_3F14A1"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F14C3_RESID",
+     "node": "VCB_3F14C3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 628.2
+    },
+    {
+     "feature": "BTR_3U11A_TAP",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 17.1
+    },
+    {
+     "feature": "VCB_3F14C3_POWER",
+     "node": "VCB_3F14C3",
+     "kind": "태그",
+     "score": 12.8
+    },
+    {
+     "feature": "VCB_3F14A1_STATUS",
+     "node": "VCB_3F14A1",
+     "kind": "태그",
+     "score": 7.9
+    },
+    {
+     "feature": "LTR_3F14C3_TEMP_W",
+     "node": "LTR_3F14C3",
+     "kind": "태그",
+     "score": 7.2
+    },
+    {
+     "feature": "VCB_3F14C3_VOLTAGE",
+     "node": "VCB_3F14C3",
+     "kind": "태그",
+     "score": 4.6
+    },
+    {
+     "feature": "LTR_3F14A5_LOAD",
+     "node": "LTR_3F14A5",
+     "kind": "태그",
+     "score": 4.6
+    },
+    {
+     "feature": "ACB_3F13A3_PF",
+     "node": "ACB_3F13A3",
+     "kind": "태그",
+     "score": 4.5
+    },
+    {
+     "feature": "VCB_3F14A5_POWER",
+     "node": "VCB_3F14A5",
+     "kind": "태그",
+     "score": 4.3
+    },
+    {
+     "feature": "BTR_3U11B_KCL",
+     "node": "BTR_3U11B",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 4.3
+    }
+   ]
+  },
+  {
+   "id": "AL023",
+   "start": "2026-10-15 03:43:00",
+   "end": "2026-10-15 04:07:00",
+   "minutes": 25,
+   "peak_score": 252.6,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F14C3",
+    "VCB_3F14A6",
+    "LTR_3F14A6"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F14C3_RESID",
+     "node": "VCB_3F14C3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 974.6
+    },
+    {
+     "feature": "VCB_3F14A6_STATUS",
+     "node": "VCB_3F14A6",
+     "kind": "태그",
+     "score": 15.8
+    },
+    {
+     "feature": "VCB_3F14A6_POWER",
+     "node": "VCB_3F14A6",
+     "kind": "태그",
+     "score": 5.3
+    },
+    {
+     "feature": "VCB_3F14C3_POWER",
+     "node": "VCB_3F14C3",
+     "kind": "태그",
+     "score": 5.0
+    },
+    {
+     "feature": "LTR_3F14A6_STATUS",
+     "node": "LTR_3F14A6",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "VCB_3F14A1_STATUS",
+     "node": "VCB_3F14A1",
+     "kind": "태그",
+     "score": 4.7
+    },
+    {
+     "feature": "BTR_3U11B_TAP",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 4.6
+    },
+    {
+     "feature": "VCB_3F14A6_KCL",
+     "node": "VCB_3F14A6",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 3.9
+    },
+    {
+     "feature": "LTR_3F15A6_TEMP_C",
+     "node": "LTR_3F15A6",
+     "kind": "태그",
+     "score": 3.9
+    },
+    {
+     "feature": "ACB_3F14A5_POWER",
+     "node": "ACB_3F14A5",
+     "kind": "태그",
+     "score": 3.2
+    }
+   ]
+  },
+  {
+   "id": "AL024",
+   "start": "2026-10-15 09:42:00",
+   "end": "2026-10-15 09:47:00",
+   "minutes": 6,
+   "peak_score": 314.6,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11A",
+    "MAIN_3U11A",
+    "ACB_3U11A1"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11A_RESID",
+     "node": "BTR_3U11A",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 315.4
+    },
+    {
+     "feature": "MAIN_3U11A_RESID",
+     "node": "MAIN_3U11A",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 307.5
+    },
+    {
+     "feature": "ACB_3U11A1_RESID",
+     "node": "ACB_3U11A1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 294.8
+    },
+    {
+     "feature": "MAIN_3U11A_PF",
+     "node": "MAIN_3U11A",
+     "kind": "태그",
+     "score": 286.7
+    },
+    {
+     "feature": "BTR_3U11A_PF",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 286.5
+    },
+    {
+     "feature": "GCB_3U11A_PF",
+     "node": "GCB_3U11A",
+     "kind": "태그",
+     "score": 274.7
+    },
+    {
+     "feature": "GCB_3U11A_RESID",
+     "node": "GCB_3U11A",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 207.2
+    },
+    {
+     "feature": "BTR_3F15B_CURRENT",
+     "node": "BTR_3F15B",
+     "kind": "태그",
+     "score": 22.8
+    },
+    {
+     "feature": "GCB_3F15B_POWER",
+     "node": "GCB_3F15B",
+     "kind": "태그",
+     "score": 21.7
+    },
+    {
+     "feature": "MAIN_3F15B_CURRENT",
+     "node": "MAIN_3F15B",
+     "kind": "태그",
+     "score": 21.1
+    }
+   ]
+  },
+  {
+   "id": "AL025",
+   "start": "2026-10-15 10:49:00",
+   "end": "2026-10-15 11:05:00",
+   "minutes": 17,
+   "peak_score": 213.7,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3U11A1",
+    "LTR_3U11A1",
+    "BTR_3F15B"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3U11A1_POWER",
+     "node": "VCB_3U11A1",
+     "kind": "태그",
+     "score": 339.0
+    },
+    {
+     "feature": "LTR_3U11A1_TEMP_C",
+     "node": "LTR_3U11A1",
+     "kind": "태그",
+     "score": 166.7
+    },
+    {
+     "feature": "VCB_3U11A1_KCL",
+     "node": "VCB_3U11A1",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 141.4
+    },
+    {
+     "feature": "VCB_3U11A1_STATUS",
+     "node": "VCB_3U11A1",
+     "kind": "태그",
+     "score": 90.9
+    },
+    {
+     "feature": "LTR_3U11A1_STATUS",
+     "node": "LTR_3U11A1",
+     "kind": "태그",
+     "score": 33.8
+    },
+    {
+     "feature": "LTR_3U11A1_TEMP_W",
+     "node": "LTR_3U11A1",
+     "kind": "태그",
+     "score": 33.0
+    },
+    {
+     "feature": "BTR_3F15B_CURRENT",
+     "node": "BTR_3F15B",
+     "kind": "태그",
+     "score": 22.5
+    },
+    {
+     "feature": "VCB_3U11A1_CURRENT",
+     "node": "VCB_3U11A1",
+     "kind": "태그",
+     "score": 22.5
+    },
+    {
+     "feature": "MAIN_3F15B_CURRENT",
+     "node": "MAIN_3F15B",
+     "kind": "태그",
+     "score": 21.1
+    },
+    {
+     "feature": "BTR_3F15B_POWER",
+     "node": "BTR_3F15B",
+     "kind": "태그",
+     "score": 19.1
+    }
+   ]
+  },
+  {
+   "id": "AL026",
+   "start": "2026-10-15 12:22:00",
+   "end": "2026-10-15 17:03:00",
+   "minutes": 282,
+   "peak_score": 935.5,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F13A2",
+    "TIE_3F13AC2",
+    "LTR_3F13A2"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F13A2_RESID",
+     "node": "ACB_3F13A2",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 4040.1
+    },
+    {
+     "feature": "ACB_3F13A2_CURRENT",
+     "node": "ACB_3F13A2",
+     "kind": "태그",
+     "score": 52.7
+    },
+    {
+     "feature": "TIE_3F13AC2_STATUS",
+     "node": "TIE_3F13AC2",
+     "kind": "태그",
+     "score": 28.7
+    },
+    {
+     "feature": "LTR_3F13A2_LOAD",
+     "node": "LTR_3F13A2",
+     "kind": "태그",
+     "score": 8.1
+    },
+    {
+     "feature": "BTR_3U11A_TAP",
+     "node": "BTR_3U11A",
+     "kind": "태그",
+     "score": 7.2
+    },
+    {
+     "feature": "ACB_3F15A6_POWER",
+     "node": "ACB_3F15A6",
+     "kind": "태그",
+     "score": 3.8
+    },
+    {
+     "feature": "VCB_3F15A2_STATUS",
+     "node": "VCB_3F15A2",
+     "kind": "태그",
+     "score": 3.8
+    },
+    {
+     "feature": "ACB_3F15A5_POWER",
+     "node": "ACB_3F15A5",
+     "kind": "태그",
+     "score": 3.7
+    },
+    {
+     "feature": "LTR_3F14A2_STATUS",
+     "node": "LTR_3F14A2",
+     "kind": "태그",
+     "score": 3.6
+    },
+    {
+     "feature": "ACB_3F15A5_CURRENT",
+     "node": "ACB_3F15A5",
+     "kind": "태그",
+     "score": 3.3
+    }
+   ]
+  },
+  {
+   "id": "AL027",
+   "start": "2026-10-15 21:23:00",
+   "end": "2026-10-15 23:45:00",
+   "minutes": 143,
+   "peak_score": 521.5,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F13A5",
+    "VCB_3F14A3",
+    "ACB_3F14A3"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F13A5_RESID",
+     "node": "VCB_3F13A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 1253.4
+    },
+    {
+     "feature": "VCB_3F13A5_PF",
+     "node": "VCB_3F13A5",
+     "kind": "태그",
+     "score": 63.9
+    },
+    {
+     "feature": "VCB_3F14A3_RESID",
+     "node": "VCB_3F14A3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 11.9
+    },
+    {
+     "feature": "ACB_3F14A3_RESID",
+     "node": "ACB_3F14A3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 11.6
+    },
+    {
+     "feature": "ACB_3F14A3_VOLTAGE",
+     "node": "ACB_3F14A3",
+     "kind": "태그",
+     "score": 9.9
+    },
+    {
+     "feature": "VCB_3F14A3_VOLTAGE",
+     "node": "VCB_3F14A3",
+     "kind": "태그",
+     "score": 9.3
+    },
+    {
+     "feature": "VCB_3F14A3_PF",
+     "node": "VCB_3F14A3",
+     "kind": "태그",
+     "score": 8.6
+    },
+    {
+     "feature": "ACB_3F14A3_PF",
+     "node": "ACB_3F14A3",
+     "kind": "태그",
+     "score": 8.1
+    },
+    {
+     "feature": "LTR_3F13A5_LOAD",
+     "node": "LTR_3F13A5",
+     "kind": "태그",
+     "score": 3.7
+    },
+    {
+     "feature": "LTR_3F11A3_LOAD",
+     "node": "LTR_3F11A3",
+     "kind": "태그",
+     "score": 2.2
+    }
+   ]
+  },
+  {
+   "id": "AL028",
+   "start": "2026-10-16 05:07:00",
+   "end": "2026-10-16 05:17:00",
+   "minutes": 11,
+   "peak_score": 257.1,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F15C3",
+    "LTR_3F15C3",
+    "LTR_3F12A6"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F15C3_RESID",
+     "node": "ACB_3F15C3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 808.6
+    },
+    {
+     "feature": "ACB_3F15C3_CURRENT",
+     "node": "ACB_3F15C3",
+     "kind": "태그",
+     "score": 28.1
+    },
+    {
+     "feature": "LTR_3F15C3_LOAD",
+     "node": "LTR_3F15C3",
+     "kind": "태그",
+     "score": 18.0
+    },
+    {
+     "feature": "LTR_3F15C3_STATUS",
+     "node": "LTR_3F15C3",
+     "kind": "태그",
+     "score": 11.7
+    },
+    {
+     "feature": "LTR_3F12A6_TEMP_W",
+     "node": "LTR_3F12A6",
+     "kind": "태그",
+     "score": 6.7
+    },
+    {
+     "feature": "BTR_3U11B_TAP",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 5.7
+    },
+    {
+     "feature": "BTR_3F13B_TEMP",
+     "node": "BTR_3F13B",
+     "kind": "태그",
+     "score": 5.5
+    },
+    {
+     "feature": "MAIN_3F12B_VOLTAGE",
+     "node": "MAIN_3F12B",
+     "kind": "태그",
+     "score": 5.3
+    },
+    {
+     "feature": "VCB_3F12A6_VOLTAGE",
+     "node": "VCB_3F12A6",
+     "kind": "태그",
+     "score": 5.2
+    },
+    {
+     "feature": "LTR_3F13C4_TEMP_W",
+     "node": "LTR_3F13C4",
+     "kind": "태그",
+     "score": 4.9
+    }
+   ]
+  },
+  {
+   "id": "AL029",
+   "start": "2026-10-16 09:34:00",
+   "end": "2026-10-16 09:39:00",
+   "minutes": 6,
+   "peak_score": 183.4,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F11A5",
+    "VCB_3F11A5",
+    "VCB_3F11C4"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F11A5_RESID",
+     "node": "ACB_3F11A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 304.7
+    },
+    {
+     "feature": "VCB_3F11A5_RESID",
+     "node": "VCB_3F11A5",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 294.3
+    },
+    {
+     "feature": "VCB_3F11C4_POWER",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 51.4
+    },
+    {
+     "feature": "VCB_3F11A5_VOLTAGE",
+     "node": "VCB_3F11A5",
+     "kind": "태그",
+     "score": 50.3
+    },
+    {
+     "feature": "VCB_3F11C4_CURRENT",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 46.2
+    },
+    {
+     "feature": "BTR_3F11B_CURRENT",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 42.3
+    },
+    {
+     "feature": "MAIN_3F11B_POWER",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 40.6
+    },
+    {
+     "feature": "VCB_3F11C4_KCL",
+     "node": "VCB_3F11C4",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 38.6
+    },
+    {
+     "feature": "ACB_3F11A5_VOLTAGE",
+     "node": "ACB_3F11A5",
+     "kind": "태그",
+     "score": 36.9
+    },
+    {
+     "feature": "BTR_3F11B_LOAD",
+     "node": "BTR_3F11B",
+     "kind": "태그",
+     "score": 33.8
+    }
+   ]
+  },
+  {
+   "id": "AL030",
+   "start": "2026-10-16 12:25:00",
+   "end": "2026-10-16 12:36:00",
+   "minutes": 12,
+   "peak_score": 291.7,
+   "threshold": 117.88,
+   "top_nodes": [
+    "MAIN_3F14B",
+    "VCB_3F14C4",
+    "ACB_3F11C3"
+   ],
+   "top_features": [
+    {
+     "feature": "MAIN_3F14B_POWER",
+     "node": "MAIN_3F14B",
+     "kind": "태그",
+     "score": 208.4
+    },
+    {
+     "feature": "VCB_3F14C4_KCL",
+     "node": "VCB_3F14C4",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 172.6
+    },
+    {
+     "feature": "ACB_3F11C3_RESID",
+     "node": "ACB_3F11C3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 148.4
+    },
+    {
+     "feature": "MAIN_3F14B_CURRENT",
+     "node": "MAIN_3F14B",
+     "kind": "태그",
+     "score": 130.0
+    },
+    {
+     "feature": "VCB_3F11C3_RESID",
+     "node": "VCB_3F11C3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 122.7
+    },
+    {
+     "feature": "BTR_3F14B_CURRENT",
+     "node": "BTR_3F14B",
+     "kind": "태그",
+     "score": 120.1
+    },
+    {
+     "feature": "GCB_3F14B_CURRENT",
+     "node": "GCB_3F14B",
+     "kind": "태그",
+     "score": 79.5
+    },
+    {
+     "feature": "GCB_3F14B_POWER",
+     "node": "GCB_3F14B",
+     "kind": "태그",
+     "score": 72.6
+    },
+    {
+     "feature": "VCB_3F14C4_CURRENT",
+     "node": "VCB_3F14C4",
+     "kind": "태그",
+     "score": 72.0
+    },
+    {
+     "feature": "BTR_3F14B_POWER",
+     "node": "BTR_3F14B",
+     "kind": "태그",
+     "score": 71.8
+    }
+   ]
+  },
+  {
+   "id": "AL031",
+   "start": "2026-10-16 14:23:00",
+   "end": "2026-10-16 15:12:00",
+   "minutes": 50,
+   "peak_score": 1423.1,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F12A3",
+    "LTR_3F12A3",
+    "BTR_3F13B"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F12A3_RESID",
+     "node": "ACB_3F12A3",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 4257.7
+    },
+    {
+     "feature": "ACB_3F12A3_PF",
+     "node": "ACB_3F12A3",
+     "kind": "태그",
+     "score": 1752.3
+    },
+    {
+     "feature": "ACB_3F12A3_POWER",
+     "node": "ACB_3F12A3",
+     "kind": "태그",
+     "score": 146.2
+    },
+    {
+     "feature": "LTR_3F12A3_TEMP_W",
+     "node": "LTR_3F12A3",
+     "kind": "태그",
+     "score": 50.0
+    },
+    {
+     "feature": "LTR_3F12A3_TEMP_C",
+     "node": "LTR_3F12A3",
+     "kind": "태그",
+     "score": 48.9
+    },
+    {
+     "feature": "ACB_3F12A3_VOLTAGE",
+     "node": "ACB_3F12A3",
+     "kind": "태그",
+     "score": 35.1
+    },
+    {
+     "feature": "LTR_3F12A3_LOAD",
+     "node": "LTR_3F12A3",
+     "kind": "태그",
+     "score": 19.4
+    },
+    {
+     "feature": "ACB_3F12A3_CURRENT",
+     "node": "ACB_3F12A3",
+     "kind": "태그",
+     "score": 6.1
+    },
+    {
+     "feature": "BTR_3F13B_TAP",
+     "node": "BTR_3F13B",
+     "kind": "태그",
+     "score": 4.4
+    },
+    {
+     "feature": "ACB_3F15A6_POWER",
+     "node": "ACB_3F15A6",
+     "kind": "태그",
+     "score": 4.1
+    }
+   ]
+  },
+  {
+   "id": "AL032",
+   "start": "2026-10-16 22:41:00",
+   "end": "2026-10-16 23:34:00",
+   "minutes": 54,
+   "peak_score": 492.5,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F12C1",
+    "VCB_3F12C1",
+    "LTR_3F12C1"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F12C1_RESID",
+     "node": "ACB_3F12C1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 2023.8
+    },
+    {
+     "feature": "VCB_3F12C1_KCL",
+     "node": "VCB_3F12C1",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 75.7
+    },
+    {
+     "feature": "LTR_3F12C1_TEMP_W",
+     "node": "LTR_3F12C1",
+     "kind": "태그",
+     "score": 26.1
+    },
+    {
+     "feature": "LTR_3F12C1_TEMP_C",
+     "node": "LTR_3F12C1",
+     "kind": "태그",
+     "score": 24.2
+    },
+    {
+     "feature": "ACB_3F12C1_CURRENT",
+     "node": "ACB_3F12C1",
+     "kind": "태그",
+     "score": 13.8
+    },
+    {
+     "feature": "ACB_3F12C1_VOLTAGE",
+     "node": "ACB_3F12C1",
+     "kind": "태그",
+     "score": 13.8
+    },
+    {
+     "feature": "LTR_3F12C1_LOAD",
+     "node": "LTR_3F12C1",
+     "kind": "태그",
+     "score": 10.2
+    },
+    {
+     "feature": "VCB_3F13A3_VOLTAGE",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 9.7
+    },
+    {
+     "feature": "ACB_3F12C1_POWER",
+     "node": "ACB_3F12C1",
+     "kind": "태그",
+     "score": 9.7
+    },
+    {
+     "feature": "LTR_3U11C1_LOAD",
+     "node": "LTR_3U11C1",
+     "kind": "태그",
+     "score": 8.3
+    }
+   ]
+  },
+  {
+   "id": "AL033",
+   "start": "2026-10-17 09:20:00",
+   "end": "2026-10-17 11:55:00",
+   "minutes": 156,
+   "peak_score": 1170.8,
+   "threshold": 117.88,
+   "top_nodes": [
+    "VCB_3F13A1",
+    "GCB_3F11B",
+    "LTR_3F13A1"
+   ],
+   "top_features": [
+    {
+     "feature": "VCB_3F13A1_RESID",
+     "node": "VCB_3F13A1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 2438.5
+    },
+    {
+     "feature": "VCB_3F13A1_PF",
+     "node": "VCB_3F13A1",
+     "kind": "태그",
+     "score": 2205.5
+    },
+    {
+     "feature": "VCB_3F13A1_POWER",
+     "node": "VCB_3F13A1",
+     "kind": "태그",
+     "score": 162.0
+    },
+    {
+     "feature": "GCB_3F11B_POWER",
+     "node": "GCB_3F11B",
+     "kind": "태그",
+     "score": 58.9
+    },
+    {
+     "feature": "LTR_3F13A1_LOAD",
+     "node": "LTR_3F13A1",
+     "kind": "태그",
+     "score": 56.1
+    },
+    {
+     "feature": "MAIN_3F11B_POWER",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 53.5
+    },
+    {
+     "feature": "MAIN_3F11B_CURRENT",
+     "node": "MAIN_3F11B",
+     "kind": "태그",
+     "score": 49.6
+    },
+    {
+     "feature": "VCB_3F11C4_POWER",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 46.7
+    },
+    {
+     "feature": "VCB_3F11C4_CURRENT",
+     "node": "VCB_3F11C4",
+     "kind": "태그",
+     "score": 43.5
+    },
+    {
+     "feature": "VCB_3F11C4_KCL",
+     "node": "VCB_3F11C4",
+     "kind": "KCL 잔차(상위 P − 하위 P 합)",
+     "score": 41.6
+    }
+   ]
+  },
+  {
+   "id": "AL034",
+   "start": "2026-10-18 01:40:00",
+   "end": "2026-10-18 01:49:00",
+   "minutes": 10,
+   "peak_score": 333.6,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F14A6",
+    "ACB_3F13A3",
+    "VCB_3F13A3"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F14A6_RESID",
+     "node": "ACB_3F14A6",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 966.4
+    },
+    {
+     "feature": "ACB_3F14A6_CURRENT",
+     "node": "ACB_3F14A6",
+     "kind": "태그",
+     "score": 19.4
+    },
+    {
+     "feature": "ACB_3F13A3_PF",
+     "node": "ACB_3F13A3",
+     "kind": "태그",
+     "score": 15.4
+    },
+    {
+     "feature": "VCB_3F13A3_PF",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 12.2
+    },
+    {
+     "feature": "VCB_3F13A3_VOLTAGE",
+     "node": "VCB_3F13A3",
+     "kind": "태그",
+     "score": 8.8
+    },
+    {
+     "feature": "VCB_3F14C2_PF",
+     "node": "VCB_3F14C2",
+     "kind": "태그",
+     "score": 8.0
+    },
+    {
+     "feature": "ACB_3F14A6_POWER",
+     "node": "ACB_3F14A6",
+     "kind": "태그",
+     "score": 5.8
+    },
+    {
+     "feature": "VCB_3F12A4_CURRENT",
+     "node": "VCB_3F12A4",
+     "kind": "태그",
+     "score": 5.6
+    },
+    {
+     "feature": "BTR_3U11B_TAP",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 5.4
+    },
+    {
+     "feature": "LTR_3F15C1_TEMP_W",
+     "node": "LTR_3F15C1",
+     "kind": "태그",
+     "score": 5.2
+    }
+   ]
+  },
+  {
+   "id": "AL035",
+   "start": "2026-10-18 08:58:00",
+   "end": "2026-10-18 09:03:00",
+   "minutes": 6,
+   "peak_score": 405.0,
+   "threshold": 117.88,
+   "top_nodes": [
+    "ACB_3F12C1",
+    "VCB_3F12C1",
+    "VCB_3F14A6"
+   ],
+   "top_features": [
+    {
+     "feature": "ACB_3F12C1_RESID",
+     "node": "ACB_3F12C1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 822.9
+    },
+    {
+     "feature": "VCB_3F12C1_RESID",
+     "node": "VCB_3F12C1",
+     "kind": "물리 잔차(P−√3·V·I·PF)",
+     "score": 754.8
+    },
+    {
+     "feature": "VCB_3F12C1_VOLTAGE",
+     "node": "VCB_3F12C1",
+     "kind": "태그",
+     "score": 176.2
+    },
+    {
+     "feature": "ACB_3F12C1_PF",
+     "node": "ACB_3F12C1",
+     "kind": "태그",
+     "score": 142.3
+    },
+    {
+     "feature": "VCB_3F12C1_PF",
+     "node": "VCB_3F12C1",
+     "kind": "태그",
+     "score": 98.6
+    },
+    {
+     "feature": "ACB_3F12C1_VOLTAGE",
+     "node": "ACB_3F12C1",
+     "kind": "태그",
+     "score": 49.8
+    },
+    {
+     "feature": "VCB_3F14A6_STATUS",
+     "node": "VCB_3F14A6",
+     "kind": "태그",
+     "score": 9.4
+    },
+    {
+     "feature": "VCB_3F14C2_POWER",
+     "node": "VCB_3F14C2",
+     "kind": "태그",
+     "score": 7.0
+    },
+    {
+     "feature": "VCB_3F11A2_PF",
+     "node": "VCB_3F11A2",
+     "kind": "태그",
+     "score": 6.1
+    },
+    {
+     "feature": "VCB_3F14A6_VOLTAGE",
+     "node": "VCB_3F14A6",
+     "kind": "태그",
+     "score": 5.0
+    }
+   ]
+  },
+  {
+   "id": "AL036",
+   "start": "2026-10-18 18:33:00",
+   "end": "2026-10-18 18:52:00",
+   "minutes": 20,
+   "peak_score": 2151.1,
+   "threshold": 117.88,
+   "top_nodes": [
+    "BTR_3U11B",
+    "ACB_3F15C2",
+    "ACB_3F15C1"
+   ],
+   "top_features": [
+    {
+     "feature": "BTR_3U11B_CURRENT",
+     "node": "BTR_3U11B",
+     "kind": "태그",
+     "score": 736.8
+    },
+    {
+     "feature": "ACB_3F15C2_VOLTAGE",
+     "node": "ACB_3F15C2",
+     "kind": "태그",
+     "score": 605.6
+    },
+    {
+     "feature": "ACB_3F15C1_VOLTAGE",
+     "node": "ACB_3F15C1",
+     "kind": "태그",
+     "score": 482.9
+    },
+    {
+     "feature": "ACB_3F11C4_VOLTAGE",
+     "node": "ACB_3F11C4",
+     "kind": "태그",
+     "score": 470.8
+    },
+    {
+     "feature": "ACB_3F13C4_VOLTAGE",
+     "node": "ACB_3F13C4",
+     "kind": "태그",
+     "score": 433.5
+    },
+    {
+     "feature": "MAIN_3F11A_VOLTAGE",
+     "node": "MAIN_3F11A",
+     "kind": "태그",
+     "score": 431.1
+    },
+    {
+     "feature": "ACB_3F13A6_VOLTAGE",
+     "node": "ACB_3F13A6",
+     "kind": "태그",
+     "score": 381.4
+    },
+    {
+     "feature": "BTR_3F11A_VOLTAGE",
+     "node": "BTR_3F11A",
+     "kind": "태그",
+     "score": 338.1
+    },
+    {
+     "feature": "ACB_3F11A6X_STATUS",
+     "node": "ACB_3F11A6X",
+     "kind": "태그",
+     "score": 335.1
+    },
+    {
+     "feature": "ACB_3F13A6X_STATUS",
+     "node": "ACB_3F13A6X",
+     "kind": "태그",
+     "score": 324.2
+    }
+   ]
+  }
+ ]
+}

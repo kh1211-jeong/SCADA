@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수배전 감시·진단</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="title">⚡ 수배전 감시·진단</div>
+  <div id="simtime" class="clock">--</div>
+  <div class="seg" id="speed"><button data-v="0" title="일시정지">⏸</button><button data-v="1" class="on">×1</button><button data-v="3">×3</button><button data-v="10">×10</button></div>
+  <label class="toggle"><input type="checkbox" id="auto" checked>자동 진단</label>
+  <button id="reset" class="ghost">평상 복귀</button>
+  <div class="spacer"></div>
+  <div id="scorePill" class="pill">이상 점수 —</div>
+  <span class="dotb" id="modelBadge">모델</span>
+  <span class="dotb" id="agentBadge">에이전트</span>
+</header>
+
+<main>
+  <section class="left">
+    <nav id="tabs" class="tabs"></nav>
+    <div class="diagram-wrap" id="wrap">
+      <svg id="sld" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="legend">
+        <span><i class="ln v154"></i>154kV</span><span><i class="ln v66"></i>6.6kV</span><span><i class="ln v220"></i>220V</span><span><i class="ln off"></i>무전압</span>
+        <span><i class="sw closed"></i>투입</span><span><i class="sw open"></i>개방</span><span><i class="hot"></i>이상</span>
+      </div>
+      <button id="fitBtn" class="fit" title="전체 보기">⤢</button>
+    </div>
+  </section>
+
+  <section class="right">
+    <div class="card score-card">
+      <svg id="chart" viewBox="0 0 400 70" preserveAspectRatio="none"></svg>
+      <div id="topNow" class="topnow"></div>
+    </div>
+    <div class="card mid">
+      <div class="tabs2" id="ptabs">
+        <button data-t="eq" class="on">설비</button><button data-t="alarms">경보 <b id="nAl"></b></button><button data-t="ops">개폐 기록</button><button data-t="inj">주입 이벤트</button>
+      </div>
+      <div id="panel" class="panel"></div>
+    </div>
+    <div class="card chat">
+      <div id="msgs" class="msgs"></div>
+      <div class="quick" id="quick"><button>지금 이상 있는 곳?</button><button>최근 경보 원인</button><button>평상과 다른 차단기</button></div>
+      <form id="ask" class="ask"><input id="q" placeholder="진단 에이전트에게 질문" autocomplete="off"><button>보내기</button></form>
+    </div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

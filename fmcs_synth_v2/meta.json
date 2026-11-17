@@ -1,0 +1,36 @@
+{
+  "generator": "src/data/synth_fmcs.py",
+  "profile": "v2",
+  "eval_days": 12,
+  "eval_per_type": 3,
+  "seed": 7,
+  "days": 42,
+  "start": "2026-09-07 00:00:00",
+  "egms_build_topology": "/Users/keeheunjeong/SCADA/EGMS/build_topology.py",
+  "n_nodes": 277,
+  "n_edges": 317,
+  "n_tags": 1027,
+  "n_events": {
+    "operational": 67,
+    "anomaly": 62,
+    "data_quality": 9
+  },
+  "conventions": {
+    "row": "1 row = 1 tag x 1 minute, TAG_COMPRS_VAL='sec:val;...' 3s grid, offset 0 always recorded, later offsets only if |change| > deadband (exception compression)",
+    "TRND_DATE": "%y/%m/%d %H:%M:%S",
+    "units": {
+      "POWER": "kW",
+      "CURRENT": "A",
+      "VOLTAGE": "kV (GCB/BTR/MAIN/VCB), V (ACB/ACB_MAIN_EMG)",
+      "PF": "% signed (lagging +, leading -; P=sqrt3*V*I*PF/100 holds with sign)",
+      "TEMP": "C",
+      "LOAD": "% of transformer rating",
+      "TAP": "OLTC step 1..17, nominal 9",
+      "STATUS": "switch: 1 closed/0 open; non-switch (BTR/LTR/STR): 1 energized"
+    },
+    "normally_open": [
+      "TIE",
+      "XCB"
+    ]
+  }
+}

@@ -1,0 +1,339 @@
+{
+ "alarms": [
+  {
+   "id": "AL001",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "GCB_3F15B_POWER"
+    }
+   ],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL002",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "GCB_3F15B_POWER"
+    },
+    {
+     "type": "hidden_load",
+     "target": "VCB_3F11A5"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL003",
+   "truth": [
+    {
+     "type": "hidden_load",
+     "target": "VCB_3F11A5"
+    },
+    {
+     "type": "pf_sign_flip",
+     "target": "VCB_3F12A6_PF"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL004",
+   "truth": [
+    {
+     "type": "pf_sign_flip",
+     "target": "MAIN_3F14B_PF"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL005",
+   "truth": [
+    {
+     "type": "meter_offset",
+     "target": "ACB_3F12A6_POWER"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL006",
+   "truth": [
+    {
+     "type": "hidden_load",
+     "target": "VCB_3F12C3"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL007",
+   "truth": [
+    {
+     "type": "voltage_sag",
+     "target": "BUS_154kV"
+    }
+   ],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL008",
+   "truth": [
+    {
+     "type": "voltage_sag",
+     "target": "BUS_154kV"
+    }
+   ],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL009",
+   "truth": [
+    {
+     "type": "hidden_load",
+     "target": "VCB_3F12A5"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL010",
+   "truth": [
+    {
+     "type": "spike_burst",
+     "target": "VCB_3F15A2_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL011",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL012",
+   "truth": [
+    {
+     "type": "pf_sign_flip",
+     "target": "MAIN_3U11B_PF"
+    }
+   ],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL013",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL014",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL015",
+   "truth": [
+    {
+     "type": "meter_offset",
+     "target": "ACB_3F12A4_POWER"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL016",
+   "truth": [
+    {
+     "type": "hidden_load",
+     "target": "VCB_3F12A4"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL017",
+   "truth": [
+    {
+     "type": "voltage_sag",
+     "target": "BUS_154kV"
+    }
+   ],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL018",
+   "truth": [
+    {
+     "type": "ct_drift",
+     "target": "VCB_3F15A6_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL019",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "ACB_3F12A4_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL020",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "ACB_3F12A4_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL021",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "ACB_3F12A4_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL022",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "VCB_3F14C3_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL023",
+   "truth": [
+    {
+     "type": "sensor_stuck",
+     "target": "VCB_3F14C3_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL024",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL025",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL026",
+   "truth": [
+    {
+     "type": "ct_drift",
+     "target": "ACB_3F13A2_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL027",
+   "truth": [
+    {
+     "type": "ct_drift",
+     "target": "VCB_3F13A5_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL028",
+   "truth": [
+    {
+     "type": "spike_burst",
+     "target": "ACB_3F15C3_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL029",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL030",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL031",
+   "truth": [
+    {
+     "type": "pf_sign_flip",
+     "target": "ACB_3F12A3_PF"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL032",
+   "truth": [
+    {
+     "type": "meter_offset",
+     "target": "ACB_3F12C1_POWER"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL033",
+   "truth": [
+    {
+     "type": "oltc_hunting",
+     "target": "BTR_3F13A"
+    },
+    {
+     "type": "pf_sign_flip",
+     "target": "VCB_3F13A1_PF"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL034",
+   "truth": [
+    {
+     "type": "spike_burst",
+     "target": "ACB_3F14A6_CURRENT"
+    }
+   ],
+   "top_node_hit": true
+  },
+  {
+   "id": "AL035",
+   "truth": [],
+   "top_node_hit": false
+  },
+  {
+   "id": "AL036",
+   "truth": [
+    {
+     "type": "voltage_sag",
+     "target": "BUS_154kV"
+    }
+   ],
+   "top_node_hit": false
+  }
+ ],
+ "n_true_alarms": 28,
+ "n_false_alarms": 8,
+ "localized": 22
+}
