@@ -55,6 +55,7 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
 - goclaw: config.json의 agents/mcp 설정을 안 씀 → DB 등록(`setup_agent.sh`). stdio MCP는 경로 없는 python만 허용 → HTTP MCP.
   Go 1.27 json v2로 SQLite JSON 열 Scan 실패 → `agent/goclaw-sqlite-scan.patch`. 도구를 9종으로 제한 안 하면 내장 49개 노출로 2분+.
   지침(AGENTS/SOUL.md)은 DB에 저장 → `sync_context.py` 후 재시작. 데모 서버 재시작 후 MCP 재연결은 `setup_agent.sh`.
+- 데모 시계는 시나리오 42일 끝에 닿으면 멈췄었음(배속 10으로 하룻밤 두면 도달 → 조작이 반영 안 됨). 지금은 `Engine._rewind()`가 1주 되감아 무한 진행, 표시 시각은 `t_off`로 계속 흐름.
 - 계통도: 모선 가로 구간에 여러 선로가 겹쳐 그려짐 → 가압 선로를 항상 위로(`paint()`), 아니면 정전처럼 보임.
 - Word PDF 변환은 AppleScript save-as가 -1708로 실패. 쪽수는 `python3 scripts/tools/word_pages.py *.docx` — Word에 다른 문서가 열려 있으면 active document가 엉뚱한 문서를 세므로 모두 닫고 이름으로 센다.
 - 사용자는 보고서에 "데이터를 다 받지 못한 사정"을 쓰는 걸 원치 않음(SWaT 사본 손상 등). FMCS가 시뮬레이션이라는 사실은 짧게 표기.

@@ -57,6 +57,7 @@ class Engine:
         self.sensor_rng = np.random.default_rng(seed + 1)
         self.t = start_day * sf.SPD + start_hour * 3600 // sf.SEC_STEP     # 3초 샘플 인덱스
         self.t_end = 42 * sf.SPD - sf.SPM
+        self.t_off = 0                                 # 시나리오 끝에서 1주 되감은 누적량(표시 시각 보정)
         self.start = self.sc.start
         self.lock = threading.RLock()
         self.rows: deque = deque(maxlen=BUF)           # (timestamp, dict tag->value)
@@ -114,7 +115,7 @@ class Engine:
     # ------------------------------------------------------------------ 시간
     def ts(self, t=None):
         t = self.t if t is None else t
-        return self.start + pd.Timedelta(seconds=int(t) * sf.SEC_STEP)
+        return self.start + pd.Timedelta(seconds=(int(t) + self.t_off) * sf.SEC_STEP)
 
     def tstr(self, t=None): return self.ts(t).strftime('%Y-%m-%d %H:%M')
 
@@ -124,7 +125,7 @@ class Engine:
             if node not in self.plant.sw_idx: return {'error': f'{node}는 개폐 설비가 아님'}
             cur = int(self.sim.state[self.plant.sw_idx[node]])
             if cur == int(closed): return {'ok': True, 'note': '이미 같은 상태'}
-            self.sc.sw_changes.insert(self.sim.sw_ptr, (self.t, node, int(closed)))
+            self.sim.state[self.plant.sw_idx[node]] = int(closed)   # 즉시 반영(다음 1분 계산부터 적용)
             op = {'time': self.tstr(), 'node': node, 'action': '투입' if closed else ('트립(보호계전기 동작)' if trip else '개방'),
                   'by': '보호계전기' if trip else who, 'etype': self.plant.etype[node]}
             self.ops.append(op)
@@ -196,7 +197,7 @@ class Engine:
         """모의 1분 진행 → 1분 평균 측정값 → 탐지."""
         with self.lock:
             if self.t >= self.t_end:
-                return
+                self._rewind()
             truth = self.sim.run_block(self.t, sf.SPM)
             meas, missing = sf.apply_sensor(truth, self.tags, self.sc.events, self.t, self.sensor_rng)
             row = {}
@@ -225,6 +226,14 @@ class Engine:
                     if prev is not None and not np.isnan(prev) and round(prev) != round(row[s]):
                         self.last_change[n] = self.minute
             self._detect(ts)
+
+    def _rewind(self):
+        """시나리오(42일) 끝에 닿으면 1주 되감아 무한 진행. 요일·시각·설비 상태는 그대로 이어지고 표시 시각은 계속 흐른다."""
+        sh = 7 * sf.SPD
+        self.t -= sh; self.t_off += sh
+        for e in self.sc.events:
+            e['start'] -= sh; e['end'] -= sh
+        self.sim.sw_ptr = len(self.sc.sw_changes)
 
     def off_normal(self):
         """평상 구성과 다른 차단기(콘덴서 자동 개폐 VCS_CAP 제외)."""
