@@ -45,7 +45,7 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
 ## 다음 할 일
 1. 경량화 학습 마무리 → `FMCS_DATA=fmcs_synth_v2 python -m scripts.export_lite` → 보고서 2종 재생성(현재 저장소의 보고서는 아직 없음/초안).
 2. 데모 개선 후보(사용자와 협의): 경보 확인·조치 흐름, 6계통 개요 화면, 트립 시 자동 절체 모의, 사건 순서 기록, 조작 권한, 모선을 굵은 막대로 그리는 단선도.
-3. 외부 접속용 서버 배포(로그인·조작 권한 필수, Gemini 키는 서버에만).
+3. (개발·잔버그 정리 후) 외부 접속용 서버 배포 — 후보: 맥북+Cloudflare Tunnel / 클라우드 VM+Docker compose(권장). 로그인·조작 권한·Gemini 사용량 제한 필수, Gemini 키는 서버에만.
 
 ## 함정 (실제로 겪은 것)
 - **TRND_DATE 파싱**은 `format='%y/%m/%d %H:%M:%S'` 명시(dateutil 오파싱). pandas 3 타임스탬프는 µs → int64 저장 시 ns 변환.
