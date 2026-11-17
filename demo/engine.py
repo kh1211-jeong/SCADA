@@ -76,6 +76,7 @@ class Engine:
         self.adj = {}
         for a, b in zip(self.edges.src, self.edges.dst):
             self.adj.setdefault(a, set()).add(b); self.adj.setdefault(b, set()).add(a)
+        self.tag_rows = [(r.EQP_NAME, r.QUANTITY, r.UNIT, int(r.DECIMALS)) for r in self.tags.itertuples()]
         self.status_tags = [r.EQP_NAME for r in self.tags.itertuples() if r.QUANTITY == 'STATUS']
         self.normal_status = None
         self.last_change = {}                          # 스위치 노드 -> 마지막 개폐 시각(분 인덱스)
@@ -196,10 +197,16 @@ class Engine:
             truth = self.sim.run_block(self.t, sf.SPM)
             meas, missing = sf.apply_sensor(truth, self.tags, self.sc.events, self.t, self.sensor_rng)
             row = {}
-            for k, x in meas.items():
-                v = float(np.mean(x))
-                if k in missing and missing[k].any(): v = float('nan')
-                row[k] = v
+            for name, q, unit, dec in self.tag_rows:   # 학습 데이터와 같은 기록 방식: 소수 자릿수 반올림 + 데드밴드 + 1분 시간가중 평균
+                x = np.round(meas[name], dec)
+                db = sf._deadband(q, unit, x)
+                last, acc = x[0], 0.0
+                for j in range(sf.SPM):
+                    if j and abs(x[j] - last) > db: last = x[j]
+                    acc += last
+                v = float(acc / sf.SPM)
+                if name in missing and missing[name].any(): v = float('nan')
+                row[name] = v
             ts = self.ts()
             self.t += sf.SPM
             self.minute += 1
