@@ -96,8 +96,11 @@ class Engine:
         nb = np.load(LITE / f"neighbors_k{info['k_max']}.npy")
         m = GDN(D, W_WIN, hid=info['hid'], neighbors=nb)
         if info['int8']:
-            m = torch.ao.quantization.quantize_dynamic(m.eval(), {torch.nn.Linear}, dtype=torch.qint8)
-        m.load_state_dict(torch.load(LITE / info['weights'], map_location='cpu'))
+            m = (setattr(torch.backends.quantized, 'engine', torch.backends.quantized.supported_engines[-1]) or torch.ao.quantization.quantize_dynamic)(m.eval(), {torch.nn.Linear}, dtype=torch.qint8)
+        sd = torch.load(LITE / info['weights'], map_location='cpu')
+        if info.get('fp16'):   # 압축 저장(16비트) → 32비트 복원
+            sd = {k: (v.float() if v.is_floating_point() else v.long() if v.dtype == torch.int16 else v) for k, v in sd.items()}
+        m.load_state_dict(sd)
         self.model = m.eval()
         self.med, self.iqr = np.array(info['med']), np.array(info['iqr'])
         self.thr = info['thr']; self.model_name = info['name']; self.model_info = info

@@ -110,18 +110,18 @@ def fig_variants():
     save(fig, 'fig_variants.png')
 
 
-LITE_NAME = {'GDN-prior': '기준 모델\n(은닉 64)', 'GDN-lite': '축소 모델\n(은닉 16)', 'GDN-lite-KD': '축소+증류', 'GDN-lite-KD-int8': '축소+증류\n+8비트'}
+LITE_NAME = {'GDN-prior': '기준\n(은닉 64)', 'GDN-lite': '①축소\n(은닉 16)', 'GDN-lite-KD': '②+증류', 'GDN-lite-KD-int8': '③+8비트', 'GDN-lite-KD-fp16': '④+16비트\n(최종)'}
 
 
 def fig_lite():
     E = json.load(open(LITE / 'eval.json'))
     ms = [m for m in LITE_NAME if m in E]
     fig, axs = plt.subplots(1, 4, figsize=(7.4, 2.2))
-    specs = [('size_kb', '저장 크기 (KB)', '{:.0f}'), ('latency_ms', '1회 추론 시간 (ms, 일반 프로세서)', '{:.1f}'),
+    specs = [('size_kb', '저장 크기 (KB)', '{:.0f}'), ('latency_ms', '1회 추론 시간 (ms, 일반 프로세서)', '{:.2f}'),
              ('F1op', '운영 임계 탐지 정확도', '{:.3f}'), ('node_top3', '원인 설비 상위 3 적중률', '{:.0%}')]
     for ax, (k, t, f) in zip(axs, specs):
         v = [E[m][k] for m in ms]
-        ax.bar(range(len(ms)), v, color=[GREY if m == 'GDN-prior' else (ORANGE if m.endswith('int8') else NAVY) for m in ms], width=0.65)
+        ax.bar(range(len(ms)), v, color=[GREY if m == 'GDN-prior' else (ORANGE if m.endswith('fp16') else NAVY) for m in ms], width=0.65)
         ax.set_xticks(range(len(ms))); ax.set_xticklabels([LITE_NAME[m] for m in ms], fontsize=5.6)
         ax.set_title(t, fontsize=7)
         for i, x in enumerate(v): ax.text(i, x, f.format(x), ha='center', va='bottom', fontsize=6)

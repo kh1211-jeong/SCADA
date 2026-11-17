@@ -4,7 +4,7 @@
   "hid": 64,
   "k_max": 24,
   "size_kb": 523.177734375,
-  "latency_ms": 0.9847010498560849,
+  "latency_ms": 0.9907521000059205,
   "train_min": 96.00619095166525
  },
  "GDN-lite": {
@@ -12,7 +12,31 @@
   "hid": 16,
   "k_max": 12,
   "size_kb": 188.177734375,
-  "latency_ms": 0.35019792503589997,
+  "latency_ms": 0.4256062500644475,
   "train_min": 18.732245194911957
+ },
+ "GDN-lite-KD": {
+  "params": 17841,
+  "hid": 16,
+  "k_max": 12,
+  "size_kb": 188.177734375,
+  "latency_ms": 0.45263230003911303,
+  "train_min": 38.1
+ },
+ "GDN-lite-KD-int8": {
+  "params": 17841,
+  "hid": 16,
+  "k_max": 12,
+  "size_kb": 188.9697265625,
+  "latency_ms": 0.7307593750738306,
+  "train_min": 38.1
+ },
+ "GDN-lite-KD-fp16": {
+  "params": 17841,
+  "hid": 16,
+  "k_max": 12,
+  "size_kb": 77.8623046875,
+  "latency_ms": 0.4262999998900341,
+  "train_min": 38.1
  }
 }

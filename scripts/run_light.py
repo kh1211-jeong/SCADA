@@ -85,6 +85,7 @@ def latency_ms(m, D, n=50):
 
 
 def quantize(m):
+    torch.backends.quantized.engine = torch.backends.quantized.supported_engines[-1]   # 맥(ARM)=qnnpack, x86=fbgemm
     return torch.ao.quantization.quantize_dynamic(m.cpu().eval(), {torch.nn.Linear}, dtype=torch.qint8)
 
 

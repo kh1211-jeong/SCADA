@@ -54,3 +54,16 @@ zsh scripts/progress.sh             # 학습 중 진행률 확인 (GDN은 epoch 
 
 ## 이전 기록
 - #2(2026-10-13~14): WADI·EPIC·FMCS v1 학습 로그는 `results/*.log`, 결과는 `results/{wadi,epic,fmcs}/`에 있다(1회별 시간은 각 로그의 `done Ns` 줄).
+
+## #4 경량화 (2026-11-17~18, M2 MPS/CPU)
+| 모델 (`results/fmcs_v2/lite`) | 설정 | 소요 |
+|---|---|---|
+| GDN-prior (교사) | 은닉 64·이웃 24, 25 epoch, MPS | 96분(CPU 병행 학습과 경합) |
+| GDN-lite | 은닉 16·이웃 12, 20 epoch, CPU 5스레드 | 19분 |
+| GDN-lite-KD | 은닉 16·이웃 12, 지식 증류(α=0.5), 20 epoch, MPS | 38분 |
+| -int8 / -fp16 | 학습 후 변환(동적 8비트 양자화 / 16비트 실수+16비트 이웃 인덱스 저장) | 1분 |
+
+- 결과(`eval.json`): 운영 F1 교사 0.516 → lite 0.629 → KD 0.582(-fp16 동일), 원인 설비 상위3 86 → 89 → 91%, 크기 523 → 188 → 78KB(fp16).
+- 8비트 양자화는 이득 없음(크기 동일, 추론 느려짐): 저장 공간 대부분이 int64 이웃 인덱스 버퍼. 맥(ARM)은 `torch.backends.quantized.engine='qnnpack'` 필요.
+- 재현: `FMCS_DATA=fmcs_synth_v2 python -m scripts.run_light --models GDN-prior GDN-lite GDN-lite-KD` → `python -m scripts.export_lite` (데모 번들 = GDN-lite-KD-fp16).
+- 주의: run_light를 병행 실행하면 lite.json을 서로 덮어쓸 수 있음(지금은 쓰기 직전에 다시 읽도록 수정).
