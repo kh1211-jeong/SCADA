@@ -39,11 +39,11 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
   #3 결론: 운영 임계 탐지 정확도 FMCS 0.135 → 0.600(GDN-prior), 학습 그래프의 토폴로지 일치 3.5% = 무작위.
 - #4 진행 중: "모델 고도화·경량화 계획 + 현장 적용/검증 계획"(2~3쪽) + "그래프 편차 신경망 기술 정리" 보고서.
   - **사용자 요구: 보고서에 약어 금지**(SCADA→설비 감시 시스템, CT→계기용 변류기, F1→탐지 정확도 등 모두 풀어 씀. 제품명·단위만 허용).
-  - 경량화 학습: GDN-prior(은닉64, 교사) / GDN-lite(은닉16·이웃12) / GDN-lite-KD(지식 증류) / +8비트 양자화. `run_light.py` → `export_lite.py` → `report_figs4` → `build_report4`·`build_report_gdn`.
+  - 경량화 결과(`results/fmcs_v2/lite/eval.json`): 교사 523KB·운영 F1 0.516 → 축소 0.629 → 축소+증류+16비트 저장 78KB·0.582·원인 설비 적중 91%(데모 탑재). 8비트 양자화는 이득 없음. 생성 순서 `run_light` → `export_lite` → `report_figs4` → `build_report4`·`build_report_gdn`.
 - 데모 웹·진단 에이전트 동작 확인(차단기 트립 → 약 25초 후 위치·정전 범위 진단).
 
 ## 다음 할 일
-1. 경량화 학습 마무리 → `FMCS_DATA=fmcs_synth_v2 python -m scripts.export_lite` → 보고서 2종 재생성(현재 저장소의 보고서는 아직 없음/초안).
+1. #4 보고서 2종 완료(모델고도화경량화_현장적용계획 3쪽, 그래프편차신경망_기술정리 5쪽). 사용자 검토 의견 반영 대기.
 2. 데모 개선 후보(사용자와 협의): 경보 확인·조치 흐름, 6계통 개요 화면, 트립 시 자동 절체 모의, 사건 순서 기록, 조작 권한, 모선을 굵은 막대로 그리는 단선도.
 3. (개발·잔버그 정리 후) 외부 접속용 서버 배포 — 후보: 맥북+Cloudflare Tunnel / 클라우드 VM+Docker compose(권장). 로그인·조작 권한·Gemini 사용량 제한 필수, Gemini 키는 서버에만.
 
@@ -56,7 +56,7 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
   Go 1.27 json v2로 SQLite JSON 열 Scan 실패 → `agent/goclaw-sqlite-scan.patch`. 도구를 9종으로 제한 안 하면 내장 49개 노출로 2분+.
   지침(AGENTS/SOUL.md)은 DB에 저장 → `sync_context.py` 후 재시작. 데모 서버 재시작 후 MCP 재연결은 `setup_agent.sh`.
 - 계통도: 모선 가로 구간에 여러 선로가 겹쳐 그려짐 → 가압 선로를 항상 위로(`paint()`), 아니면 정전처럼 보임.
-- Word PDF 변환은 AppleScript save-as가 -1708로 실패. 쪽수 확인은 Word `compute statistics ... statistic pages`.
+- Word PDF 변환은 AppleScript save-as가 -1708로 실패. 쪽수는 `python3 scripts/tools/word_pages.py *.docx` — Word에 다른 문서가 열려 있으면 active document가 엉뚱한 문서를 세므로 모두 닫고 이름으로 센다.
 - 사용자는 보고서에 "데이터를 다 받지 못한 사정"을 쓰는 걸 원치 않음(SWaT 사본 손상 등). FMCS가 시뮬레이션이라는 사실은 짧게 표기.
 
 ## 규칙
