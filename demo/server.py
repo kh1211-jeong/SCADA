@@ -24,6 +24,7 @@ from starlette.responses import FileResponse, JSONResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
+from demo import auth
 from demo.agent_client import AgentClient
 from demo.engine import EVENT_TYPES, Engine
 from demo.tools import TYPE_KO, Tools, build_mcp
@@ -335,13 +336,22 @@ async def narrate(req: Request):
     return JSONResponse({'on': narr['on']})
 
 
-app = Starlette(routes=[Route('/', index), Route('/api/meta', meta), Route('/api/state', state), Route('/api/switch', do_switch, methods=['POST']), Route('/api/inject', do_inject, methods=['POST']),
+async def me(req: Request):
+    return JSONResponse({'role': getattr(req.state, 'role', 'op'), 'auth': auth.ENABLED})
+
+
+app = Starlette(routes=[Route('/login', auth.login, methods=['GET', 'POST']), Route('/logout', auth.logout), Route('/api/me', me), Route('/', index), Route('/api/meta', meta), Route('/api/state', state), Route('/api/switch', do_switch, methods=['POST']), Route('/api/inject', do_inject, methods=['POST']),
                         Route('/api/control', control, methods=['POST']), Route('/api/ask', ask, methods=['POST']),
                         Route('/api/agent', agent_status, methods=['GET', 'POST']), Route('/api/score', score), Route('/api/narrate', narrate, methods=['POST']),
                         Route('/api/preview', preview), Route('/api/trend', trend), Mount('/static', StaticFiles(directory=STATIC))])
 
 
+app.add_middleware(auth.AuthMiddleware)
+
+
 def main():
+    if os.environ.get('SCADA_HOST', '127.0.0.1') != '127.0.0.1' and not auth.ENABLED:
+        print('[auth] 경고: 외부 공개 주소인데 로그인 비밀번호 파일이 없습니다 —', auth.AUTH_FILE)
     eng.warmup(int(os.environ.get('WARMUP', 40)))
     threading.Thread(target=eng.run, daemon=True).start()
     threading.Thread(target=worker, daemon=True).start()

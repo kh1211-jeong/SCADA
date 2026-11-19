@@ -14,6 +14,7 @@ const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt
 const fmt = (v, u = '') => v === null || v === undefined ? '–' : `${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)}${u}`;
 async function api(path, body) {
   const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  if (r.status === 401) { location.href = '/login'; return {}; }
   return r.json();
 }
 const nodeById = () => Object.fromEntries(META.diagrams[SYS].nodes.map((n) => [n.id, n]));
@@ -268,6 +269,9 @@ async function tick() {
 
 async function init() {
   META = await api('/api/meta');
+  const me = await api('/api/me');
+  document.body.classList.toggle('viewonly', me.role === 'view');
+  if (me.auth) $('#who').innerHTML = `${me.role === 'op' ? '운영자' : '보기 전용'} · <a href="/logout">로그아웃</a>`;
   refreshAgentBtn(); setInterval(refreshAgentBtn, 10000);
   renderTabs(); drawDiagram(); setPTab('eq'); tick(); setInterval(tick, 1000); setInterval(loadSpark, 5000);
 }

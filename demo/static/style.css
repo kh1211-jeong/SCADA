@@ -173,3 +173,8 @@ button.dotb:hover { border-color: var(--acc); }
 .toplist div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed var(--line); }
 .chip { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11.5px; margin-right: 4px; }
 .chip.n { background: #12301e; color: #7fe0a6; } .chip.w { background: #3a3000; color: #ffe08a; } .chip.a { background: #4a1a10; color: #ffb39a; }
+
+/* 권한: 보기 전용이면 조작 요소 숨김 */
+.who { color: var(--muted); font-size: 12px; } .who a { color: var(--muted); }
+body.viewonly #speed, body.viewonly .toggle, body.viewonly #reset, body.viewonly .ops, body.viewonly #confirm,
+body.viewonly .sec, body.viewonly .inj, body.viewonly [data-en], body.viewonly [data-mode], body.viewonly #narBtn { display: none !important; }

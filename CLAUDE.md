@@ -55,7 +55,11 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
        단락 용량은 두 변압기 기여 합. 일반 고리는 6.6kV 구간 노드 어드미턴스 행렬로 직류 조류(선형) 근사.
    (b) 방사상일 때는 기존 계산 그대로(학습 분포 유지). (c) `grid_rules.py`의 limits 문구를 함께 갱신.
    예상 작업량: 1~2일(검증 포함). 인터록이 병렬을 막고 있어 실사용 영향은 작다.
-3. (개발·잔버그 정리 후) 외부 접속용 서버 배포 — 후보: 맥북+Cloudflare Tunnel / 클라우드 VM+Docker compose(권장). 로그인·조작 권한·Gemini 사용량 제한 필수, Gemini 키는 서버에만.
+3. **외부 공개(11-19, 임시)**: 맥북 + Cloudflare 빠른 터널(`cloudflared tunnel --url http://127.0.0.1:8765`, 주소 `*.trycloudflare.com`는 재시작마다 바뀜).
+   로그인 `demo/auth.py`: 비밀번호 2종(보기 전용/운영자)은 `~/agents/demo-web/.env`(git 제외, 파일 없으면 로그인 꺼짐). 운영자 전용 POST: switch·inject·control·agent·narrate.
+   Gemini 상한 `SCADA_LLM_PER_HOUR`(기본 120회/시간). MCP(:8766)·LiteLLM·goclaw는 127.0.0.1 전용이라 터널로 안 나감.
+   상시 운영으로 옮길 때 후보는 아래.
+   (개발·잔버그 정리 후) 외부 접속용 서버 배포 — 후보: 맥북+Cloudflare Tunnel / 클라우드 VM+Docker compose(권장). 로그인·조작 권한·Gemini 사용량 제한 필수, Gemini 키는 서버에만.
 
 ## 함정 (실제로 겪은 것)
 - **TRND_DATE 파싱**은 `format='%y/%m/%d %H:%M:%S'` 명시(dateutil 오파싱). pandas 3 타임스탬프는 µs → int64 저장 시 ns 변환.
