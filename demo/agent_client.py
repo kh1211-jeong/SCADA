@@ -49,7 +49,7 @@ class AgentClient:
         self.ll = _env(AGENT_DIR / 'litellm' / '.env')
 
     def backend(self):
-        if _alive(f'{GOCLAW}/health'): return 'goclaw'
+        if os.environ.get('AGENT_MODE') != 'direct' and _alive(f'{GOCLAW}/health'): return 'goclaw'
         if _alive(f'{LITELLM}/health/liveliness'): return 'litellm'
         return None
 

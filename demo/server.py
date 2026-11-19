@@ -243,7 +243,7 @@ def main():
     threading.Thread(target=worker, daemon=True).start()
     mcp_app = build_mcp(tools).streamable_http_app(host='127.0.0.1')
     threading.Thread(target=lambda: uvicorn.run(mcp_app, host='127.0.0.1', port=8766, log_level='warning'), daemon=True).start()
-    uvicorn.run(app, host='127.0.0.1', port=int(os.environ.get('PORT', 8765)), log_level='warning')
+    uvicorn.run(app, host=os.environ.get('HOST', '127.0.0.1'), port=int(os.environ.get('PORT', 8765)), log_level='warning')
 
 
 if __name__ == '__main__':

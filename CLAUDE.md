@@ -1,7 +1,7 @@
 # CLAUDE.md — 전력 수배전 이상탐지·진단 프로젝트
 
 Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일. 상태가 바뀌면 **"현재 상태"와 "다음 할 일"을 갱신해서 같이 커밋**한다.
-자세한 배경: `README.md`(도메인·데이터 포맷), `TASKS.md`(원 작업 계획), `HANDOFF.md`(초기 인수인계), `demo/README.md`(데모 웹).
+자세한 배경: `README.md`(도메인·데이터 포맷), `TASKS.md`(원 작업 계획), `HANDOFF.md`(초기 인수인계), `demo/README.md`(데모 웹), **`GUIDE.md`(사내 리눅스 서버 설치·운영)**.
 
 ## 한 줄 요약
 반도체 공장 154kV~220V 수배전 계통의 감시 데이터(WinCC OA 트렌드, 3초 exception 압축)로 비지도 이상탐지 →

@@ -7,10 +7,12 @@ REPO=$(cd "$(dirname $0)/.." && pwd); A=~/agents
 mkdir -p $A/goclaw-scada/workspace $A/goclaw-scada/data $A/litellm
 
 # 1) goclaw: 검증한 커밋 + SQLite 버그 패치 + SQLite 전용 빌드 (비상업 라이선스 CC BY-NC 4.0)
+if [[ -z $SKIP_GOCLAW ]]; then   # SKIP_GOCLAW=1 이면 goclaw 생략(LiteLLM 직결 모드)
 [[ -d $A/goclaw ]] || git clone https://github.com/nextlevelbuilder/goclaw $A/goclaw
 git -C $A/goclaw checkout -q $(cat $REPO/agent/GOCLAW_COMMIT)
 git -C $A/goclaw apply --check $REPO/agent/goclaw-sqlite-scan.patch 2>/dev/null && git -C $A/goclaw apply $REPO/agent/goclaw-sqlite-scan.patch || echo "패치 이미 적용됨"
 (cd $A/goclaw && CGO_ENABLED=0 go build -tags sqliteonly -o goclaw .)
+fi
 
 # 2) LiteLLM 프록시 (전용 가상환경)
 [[ -d $A/litellm/.venv ]] || python3 -m venv $A/litellm/.venv
