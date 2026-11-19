@@ -221,18 +221,15 @@ async def preview(req: Request):
     with eng.lock:
         p = eng.plant
         if node not in p.sw_idx: return JSONResponse({'error': '개폐 설비 아님'})
-        st = eng.sim.state.copy(); now = set(eng.sim._topology(st)[0])
-        st2 = st.copy(); st2[p.sw_idx[node]] = closed
-        after = set(eng.sim._topology(st2)[0])
-        lost, gain = sorted(now - after), sorted(after - now)
-        kw = sum(abs(eng.last.get(f'{n}_POWER', 0) or 0) for n in lost if p.etype[n] in ('ACB', 'ACB_MAIN_EMG'))
+        now = eng.energized(); imp = eng.impact(node, closed)
+        lost, gain, kw = imp['lost'], imp['gained'], imp['lost_kw']
         warn = []
         if closed and p.etype[node] in ('TIE', 'XCB', 'DIS'):
             nb = [m for m in eng.adj.get(node, ()) if m in now]
             if len(nb) >= 2: warn.append('양쪽이 모두 가압 상태 — 병렬(루프) 운전이 됩니다')
         if not closed and p.etype[node] in ('GCB', 'MAIN') : warn.append('주 계통 차단기 — 넓은 범위 정전')
         return JSONResponse({'lost': lost, 'gained': gain, 'lost_kw': round(kw, 1),
-                             'n_load_lost': sum(1 for n in lost if p.etype[n] in ('ACB', 'ACB_MAIN_EMG')), 'warnings': warn})
+                             'n_load_lost': imp['n_load_lost'], 'warnings': warn})
 
 
 async def trend(req: Request):

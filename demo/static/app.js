@@ -173,7 +173,7 @@ function renderEq(full) {
     <div class="eqsub">${n.type_ko}${sw ? ' · ' + (closed ? '투입' : '개방') : ''}</div>
     <div class="kv" id="eqkv">${kv}</div>
     ${kv ? '<svg id="spark" viewBox="0 0 400 54" preserveAspectRatio="none"></svg>' : ''}
-    ${sw ? `<div class="ops"><button class="g" ${closed ? 'disabled' : ''} data-op="close">투입</button><button class="r" ${!closed ? 'disabled' : ''} data-op="open">개방</button><button class="o" ${!closed ? 'disabled' : ''} data-op="trip">트립 모의</button></div><div id="confirm"></div>` : ''}
+    ${sw ? `<div class="ops"><button class="g" ${closed ? 'disabled' : ''} data-op="close">투입</button><button class="r" ${!closed ? 'disabled' : ''} data-op="open">개방</button>${n.etype === 'DIS' ? '' : `<button class="o" ${!closed ? 'disabled' : ''} data-op="trip">트립 모의</button>`}</div><div id="confirm"></div>` : ''}
     ${evs.length ? `<div class="sec">이벤트 주입</div><div class="inj"><select id="evType">${evs.map(([k, t]) => `<option value="${k}">${t.name}</option>`).join('')}</select><input id="evMin" type="number" min="1" title="지속(분)"><button id="evGo">주입</button></div>` : ''}`;
   P.querySelectorAll('[data-op]').forEach((b) => b.onclick = () => prepare(b.dataset.op));
   const s = $('#evType');

@@ -45,6 +45,9 @@ EVENT_TYPES = {   # 화면에서 주입 가능한 이벤트: 대상 설비 종�
 }
 
 
+NO_TRIP = {'DIS'}   # 단로기: 보호계전기가 없어 트립되지 않음(무부하 개폐만)
+
+
 class Engine:
     def __init__(self, start_day=30, start_hour=8, seed=7):
         rng = np.random.default_rng(seed)
@@ -123,11 +126,16 @@ class Engine:
     def switch(self, node, closed, trip=False, who='운영자'):
         with self.lock:
             if node not in self.plant.sw_idx: return {'error': f'{node}는 개폐 설비가 아님'}
+            if trip and self.plant.etype[node] in NO_TRIP:
+                return {'error': f'{node}는 단로기(보호계전기 없음)라 트립되지 않음 — 개방만 가능'}
             cur = int(self.sim.state[self.plant.sw_idx[node]])
             if cur == int(closed): return {'ok': True, 'note': '이미 같은 상태'}
+            imp = self.impact(node, closed)
             self.sim.state[self.plant.sw_idx[node]] = int(closed)   # 즉시 반영(다음 1분 계산부터 적용)
             op = {'time': self.tstr(), 'node': node, 'action': '투입' if closed else ('트립(보호계전기 동작)' if trip else '개방'),
-                  'by': '보호계전기' if trip else who, 'etype': self.plant.etype[node]}
+                  'by': '보호계전기' if trip else who, 'etype': self.plant.etype[node],
+                  'impact': {'정전된_설비_수': len(imp['lost']), '정전된_부하_수': imp['n_load_lost'], '상실_부하_kW': imp['lost_kw'],
+                             '새로_가압된_설비_수': len(imp['gained']), '정전된_설비_예': imp['lost'][:8]}}
             self.ops.append(op)
             if trip:   # 트립은 보호계전기 동작 = 설비 고장으로 기록 (정답 목록에도 남김)
                 self._add_injected('breaker_trip', node, 0, {}, '차단기 트립(보호계전기 동작)')
@@ -313,6 +321,17 @@ class Engine:
     def energized(self):
         order, _, _ = self.sim._topology(self.sim.state.copy())
         return set(order)
+
+    def impact(self, node, closed):
+        """개폐 영향: 정전·가압될 설비, 정전 부하(저압 차단기) 수, 상실 부하 kW. 조작 미리보기와 개폐 기록에 공용."""
+        p = self.plant
+        st = self.sim.state.copy(); now = set(self.sim._topology(st)[0])
+        st2 = st.copy(); st2[p.sw_idx[node]] = int(closed)
+        after = set(self.sim._topology(st2)[0])
+        lost, gain = sorted(now - after), sorted(after - now)
+        loads = [n for n in lost if p.etype[n] in ('ACB', 'ACB_MAIN_EMG')]
+        kw = sum(abs(self.last.get(f'{n}_POWER', 0) or 0) for n in loads)
+        return {'lost': lost, 'gained': gain, 'n_load_lost': len(loads), 'lost_kw': round(float(kw), 1)}
 
     def tie_fed(self):
         """연계(TIE) 경로로 가압된 설비 -> 실제 공급 변압기. 자기 변압기가 아닌 다른 변압기에서 넘어온 전기를 화면에 표시하기 위함."""
