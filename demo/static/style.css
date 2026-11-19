@@ -1,7 +1,7 @@
 :root {
   --bg: #0b0f17; --panel: #121826; --panel2: #182033; --line: #263049; --text: #e3e9f5; --muted: #8592ad;
-  --v154: #ff6b81; --v66: #4aa3ff; --v220: #3ddc97; --dead: #3a4256;
-  --closed: #2fbf71; --open: #ef5a43; --tie: #f2c14e; --hot: #ff8a3d; --acc: #7aa8ff;
+  --live: #ff3b3b; --v154: var(--live); --v66: var(--live); --v220: var(--live); --dead: #22b45a;   /* 국내 관례: 활선·투입 적색, 무전압·개방 녹색 */
+  --closed: #ff3b3b; --open: #22b45a; --ok: #2fbf71; --bad: #ef5a43; --tie: #f2c14e; --hot: #ff8a3d; --acc: #7aa8ff;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
@@ -24,7 +24,7 @@ button:disabled { opacity: .35; cursor: default; }
 @keyframes blink { 50% { border-color: transparent; } }
 .dotb { font-size: 12px; color: var(--muted); }
 .dotb::before { content: "●"; margin-right: 4px; color: #555f78; }
-.dotb.ok::before { color: var(--closed); } .dotb.bad::before { color: var(--open); }
+.dotb.ok::before { color: var(--ok); } .dotb.bad::before { color: var(--bad); }
 
 main { display: grid; grid-template-columns: 1fr 420px; height: calc(100% - 48px); }
 .left { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--line); }
@@ -42,14 +42,17 @@ main { display: grid; grid-template-columns: 1fr 420px; height: calc(100% - 48px
 .legend .ln { width: 16px; height: 3px; vertical-align: 2px; }
 .ln.v154 { background: var(--v154); } .ln.v66 { background: var(--v66); } .ln.v220 { background: var(--v220); } .ln.off { background: var(--dead); }
 .legend .sw { width: 11px; height: 11px; border-radius: 2px; }
-.legend .sw.closed { background: var(--closed); } .legend .sw.open { border: 2px solid var(--open); }
+.legend .sw.closed { background: var(--closed); } .legend .sw.open { background: var(--open); } .legend .sw.trip { background: var(--open); outline: 2px solid #fff; animation: swblink .8s step-end infinite; }
 .legend .hot { width: 11px; height: 11px; border-radius: 50%; background: var(--hot); }
 .fit { position: absolute; right: 10px; bottom: 8px; width: 30px; height: 30px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
 
 /* 계통도 */
-.edge { stroke-width: 2.4; fill: none; transition: stroke .3s; stroke: var(--dead); }
+.edge { stroke-width: 2.4; fill: none; transition: stroke .3s; stroke: var(--dead); opacity: .75; }
+.edge.v154, .edge.v66, .edge.v220 { opacity: 1; }
 .edge.v154 { stroke: var(--v154); } .edge.v66 { stroke: var(--v66); } .edge.v220 { stroke: var(--v220); }
 .edge.tie { stroke-dasharray: 5 4; stroke-width: 1.6; }
+.extln { stroke: var(--tie); stroke-width: 1.6; fill: none; stroke-dasharray: 4 3; }
+.ext { fill: var(--tie); font-size: 11px; font-weight: 600; }
 .edge.viatie { stroke-dasharray: 10 5; animation: tieflow 1.2s linear infinite; }
 @keyframes tieflow { to { stroke-dashoffset: -15; } }
 .edge.flash { animation: eflash .5s ease-in-out 4; }
@@ -63,10 +66,11 @@ main { display: grid; grid-template-columns: 1fr 420px; height: calc(100% - 48px
 .node .val.dead { fill: #4e5872; }
 .node .tval { fill: #ffd29a; }
 .swbox { stroke-width: 2; }
-.swbox.closed { fill: var(--closed); stroke: #1e8a50; }
-.swbox.open { fill: var(--bg); stroke: var(--open); }
-.swbox.tieopen { fill: var(--bg); stroke: var(--tie); }
-.swbox.trip { fill: var(--bg); stroke: var(--open); stroke-width: 3; animation: blink 0.8s step-end infinite; }
+.swbox.closed { fill: var(--closed); stroke: #b81f1f; }
+.swbox.open { fill: var(--open); stroke: #157a3b; }
+.swbox.tieopen { fill: var(--open); stroke: var(--tie); stroke-dasharray: 3 2; }
+.swbox.trip { fill: var(--open); stroke: #fff; stroke-width: 3; animation: swblink 0.8s step-end infinite; }
+@keyframes swblink { 50% { opacity: .25; } }
 .xf { fill: none; stroke-width: 2; stroke: var(--dead); }
 .xf.v154 { stroke: var(--v154); } .xf.v66 { stroke: var(--v66); } .xf.v220 { stroke: var(--v220); }
 .bus { fill: var(--v154); }

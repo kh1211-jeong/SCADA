@@ -55,6 +55,11 @@ function drawDiagram() {
     } else if (SWT.has(n.etype)) {
       el('rect', { x: -11, y: -11, width: 22, height: 22, rx: 3, class: 'swbox' }, g);
       el('text', { x: 0, y: -16, class: 'nm' }, g).textContent = short(n.id);
+      if (n.ext) {   // 다른 계통으로 이어지는 연계: 바깥쪽 화살표 + 상대 계통 이름
+        const s = n.side;
+        el('path', { d: `M${11 * s},0 L${34 * s},0 M${28 * s},-5 L${34 * s},0 L${28 * s},5`, class: 'extln' }, g);
+        el('text', { x: 38 * s, y: 4, class: 'ext', 'text-anchor': s > 0 ? 'start' : 'end' }, g).textContent = n.ext + ' 계통';
+      }
     }
     el('text', { y: 26, class: 'val', 'data-v1': n.id }, g);
     el('text', { y: 38, class: 'val', 'data-v2': n.id }, g);
@@ -66,7 +71,7 @@ function drawDiagram() {
 function fit() {
   const d = META.diagrams[SYS], wrap = $('#wrap');
   const xs = d.nodes.map((n) => n.x), ys = d.nodes.map((n) => n.y);
-  const w = Math.max(...xs) + 90, h = Math.max(...ys) + 60;
+  const w = Math.max(...xs) + 150, h = Math.max(...ys) + 60;
   const k = Math.min(wrap.clientWidth / w, (wrap.clientHeight - 30) / h, 1.7);
   view = { k, x: (wrap.clientWidth - w * k) / 2, y: 8 }; applyView();
 }

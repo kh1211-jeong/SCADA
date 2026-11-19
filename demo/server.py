@@ -68,13 +68,26 @@ def diagrams():
             nodes.append({'id': n, 'etype': t, 'level': lv})
         edges = [dict(src=a, dst=b, etype=t) for a, b, t in zip(E.src, E.dst, E.etype) if a in ids and b in ids]
         pos = compute_layout(nodes, edges)
+        # 계통 간 연계 차단기: 레이아웃이 주 차단기와 같은 자리에 겹쳐 놓으므로 바깥쪽으로 빼고 상대 계통을 붙인다
+        mains = [pos[n][0] for n in ids if N.at[n, 'etype'] == 'MAIN']
+        ext = {}
+        for n in ids:
+            if n.startswith('TIE_') and not isinstance(N.at[n, 'system'], str):
+                inside = [m for m in eng.adj.get(n, ()) if m in ids]
+                other = [N.at[m, 'system'] for m in eng.adj.get(n, ()) if m not in ids and isinstance(N.at[m, 'system'], str)]
+                if inside:
+                    mx, my = pos[inside[0]]
+                    side = 1 if mx >= max(mains) else -1
+                    pos[n] = (mx + side * 120, my)
+                    ext[n] = (other[0] if other else '', side)
         xs = [p[0] for p in pos.values()]
         x0 = min(xs)
         for nd in nodes:
             x, y = pos[nd['id']]
             y = y * 0.6 + (75 if nd['etype'] in ('TIE', 'DIS') and nd['level'] == 8 else 0)   # 세로 압축, 저압 연계는 한 칸 아래
-            nd.update(x=round(x - x0 + 60, 1), y=round(y + 50, 1), type_ko=TYPE_KO.get(nd['etype'], nd['etype']),
+            nd.update(x=round(x - x0 + 110, 1), y=round(y + 50, 1), type_ko=TYPE_KO.get(nd['etype'], nd['etype']),
                       switch=nd['id'] in eng.plant.sw_idx)
+            if nd['id'] in ext: nd['ext'], nd['side'] = ext[nd['id']]
         out[s] = {'nodes': nodes, 'edges': edges}
     return out
 
