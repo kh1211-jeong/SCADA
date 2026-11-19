@@ -107,7 +107,7 @@ def targets_for(kind):
 def on_event(kind, obj):
     if kind == 'warn':
         say('system', obj['text']); return
-    if not auto_diag['on']: return
+    if not auto_diag['on'] or not agent.enabled: return
     if kind == 'alarm':
         say('system', f"경보 {obj['id']} · {', '.join(obj['top_nodes'])}")
         jobs.put((f"[자동 진단 요청] 모의 시각 {eng.tstr()}에 이상 경보 {obj['id']}가 발생했다(기여 상위 설비: {', '.join(obj['top_nodes'])}). "
@@ -127,14 +127,66 @@ def worker():
         if delay_min:
             target = eng.minute + delay_min
             while eng.minute < target: time.sleep(0.2)
+        if not agent.enabled: continue          # 대기 중 연결이 해제되면 버림
         pend = {'id': len(chat), 'role': 'agent', 'text': '진단 중…', 'time': eng.tstr(), 'pending': True}
         chat.append(pend)
         t0 = time.time()
         try:
             ans, via = agent.ask(text)
             pend.update(text=ans, pending=False, via=via, sec=round(time.time() - t0, 1))
+            agent.stats.update(n=agent.stats['n'] + 1, last_sec=pend['sec'], last_via=via)
         except Exception as e:
             pend.update(text=f'에이전트 호출 실패: {e}', pending=False, error=True)
+            agent.stats['fail'] += 1
+
+
+# ---------------------------------------------------------------- 이상 점수 실시간 해설
+narr = {'on': False, 'items': [], 'busy': False, 'last': 0.0, 'last_state': None}
+NARR_SYS = ('너는 수배전 계통 이상 탐지 화면의 해설자다. 주어진 이상 점수 데이터만 근거로 한국어 존댓말로 2~3문장, 짧게 설명한다. '
+            '이상 점수 = 가장 이상한 센서 5개가 평소보다 몇 배 예측을 빗나가는지(6분 평균). 기준선은 정상 운전의 상위 1% 값이며 3분 넘게 넘으면 경보. '
+            '평상시 점수는 대략 10 이하. 지금 수준(정상/상승 중/경보), 추세, 점수를 끌어올리는 설비와 그 이유(개폐 조작 직후인지, 주입된 이상인지 모름)를 말한다. '
+            '데이터에 없는 원인을 지어내지 말고, 차단기 조작 지시는 하지 않는다. 이모지 금지.')
+
+
+def _score_summary(minutes=30):
+    with eng.lock:
+        sc = list(eng.scores)[-minutes:]; th = list(eng.top_hist)[-minutes:]
+        ops = [o for o in eng.ops[-5:]]
+        act = [eng.alarm_view(a) for a in eng.alarms if a['end'] is None and a['minutes'] >= 1]
+    if not sc: return None
+    v = [s for _, s, _ in sc]
+    cnt = {}
+    for _, tops in th:
+        for n, z in tops: cnt[n] = max(cnt.get(n, 0), z)
+    top = sorted(cnt.items(), key=lambda kv: -kv[1])[:5]
+    return {'모의_시각': eng.tstr(), '현재_점수': round(v[-1], 1), '기준선': round(eng.thr, 1),
+            f'최근_{len(v)}분': {'최소': round(min(v), 1), '최대': round(max(v), 1), '10분_전': round(v[-11], 1) if len(v) > 10 else None},
+            '현재_상위_기여_설비': [(f['node'], f['kind'], f['score']) for f in eng.top_now[:5]],
+            '구간_최대_기여_설비': [(n, round(z, 1)) for n, z in top],
+            '진행_중_경보': [{k: a[k] for k in ('id', 'start', 'minutes', 'peak_score', 'top_nodes')} for a in act],
+            '최근_개폐': [(o['time'][11:], o['node'], o['action'], o.get('cause', '')) for o in ops]}
+
+
+def narrator():
+    """해설 켜짐 동안: 상태가 바뀌면 바로, 아니면 실제 30초마다 한 번 짧은 해설을 만든다(도구 없이 데이터만 보내 수 초 응답)."""
+    while True:
+        time.sleep(1)
+        if not narr['on'] or narr['busy'] or not agent.enabled or not eng.scores: continue
+        s = eng.scores[-1][1]
+        state = 'alarm' if s > eng.thr else 'rise' if s > 30 else 'normal'
+        if state == narr['last_state'] and time.time() - narr['last'] < 30: continue
+        d = _score_summary()
+        if d is None: continue
+        narr['busy'] = True
+        try:
+            t0 = time.time()
+            txt = agent.explain('다음은 지금의 이상 점수 데이터다. 해설해 줘.\n' + json.dumps(d, ensure_ascii=False), NARR_SYS)
+            narr['items'].append({'time': d['모의_시각'][11:], 'score': d['현재_점수'], 'text': txt.strip(), 'sec': round(time.time() - t0, 1)})
+            narr['items'] = narr['items'][-30:]
+        except Exception as e:
+            narr['items'].append({'time': eng.tstr()[11:], 'score': None, 'text': f'해설 실패: {e}', 'err': True})
+        finally:
+            narr['busy'] = False; narr['last'] = time.time(); narr['last_state'] = state
 
 
 # ---------------------------------------------------------------- API
@@ -211,6 +263,9 @@ async def ask(req: Request):
     text = b.get('text', '').strip()
     if not text: return JSONResponse({'error': 'empty'})
     say('user', text)
+    if not agent.enabled:
+        say('system', '진단 에이전트 연결이 해제되어 있습니다 — 상단 "에이전트"에서 연결하세요')
+        return JSONResponse({'ok': False, 'error': 'agent disabled'})
     recent = [m for m in chat[-8:-1] if m['role'] in ('user', 'agent') and not m.get('pending')][-4:]
     ctx = '\n'.join(f"[{'운영자' if m['role'] == 'user' else '에이전트'}] {m['text'][:400]}" for m in recent)
     jobs.put(((f'(이전 대화)\n{ctx}\n\n' if ctx else '') + f'[운영자 질문, 모의 시각 {eng.tstr()}] {text}', 0))
@@ -245,19 +300,52 @@ async def trend(req: Request):
     return JSONResponse({'t': [x.strftime('%H:%M') for x in F.index], 'series': out})
 
 
-async def agent_status(_):
-    return JSONResponse({'backend': agent.backend()})
+async def agent_status(req: Request):
+    """에이전트 연결 정보(GET) / 연결·해제·경로 변경(POST {enabled, mode})."""
+    if req.method == 'POST':
+        b = await req.json()
+        if 'enabled' in b:
+            agent.enabled = bool(b['enabled']); say('system', '진단 에이전트 연결' if agent.enabled else '진단 에이전트 연결 해제')
+        if b.get('mode') in ('auto', 'goclaw', 'direct'): agent.mode = b['mode']
+    from demo.tools import TOOL_NAMES
+    m = getattr(eng, 'model_info', None)
+    return JSONResponse({**agent.status(), 'tools': TOOL_NAMES, 'auto_diag': auto_diag['on'],
+                         'model': {'name': m['name'], 'size_kb': round(m['size_kb']), 'latency_ms': round(m['latency_ms'], 2), 'threshold': round(eng.thr, 2)} if m else None})
+
+
+async def score(req: Request):
+    """이상 점수 추이(최근 N분): 점수, 기준선, 분마다 상위 기여 설비, 경보 구간, 개폐 시각, 실시간 해설."""
+    minutes = int(req.query_params.get('minutes', 180))
+    with eng.lock:
+        sc = list(eng.scores)[-minutes:]; th = {t: tops for t, tops in list(eng.top_hist)[-minutes:]}
+        t0 = sc[0][0] if sc else None
+        al = [{'id': a['id'], 'start': a['start'][11:], 'end': (a['end'] or '')[11:]} for a in eng.alarms if a['minutes'] >= 3 and t0 is not None and a['start'] >= t0.strftime('%Y-%m-%d %H:%M')]
+        ops = [{'t': o['time'][11:], 'node': o['node'], 'action': o['action']} for o in eng.ops if t0 is not None and o['time'] >= t0.strftime('%Y-%m-%d %H:%M')]
+    v = [s for _, s, _ in sc]
+    base = v[30:] if len(v) > 90 else v                      # 서버 시작 직후 30분은 모델 창이 차오르는 과도 구간이라 정상 범위 계산에서 뺀다
+    norm = sorted(x for x in base if x < eng.thr)
+    band = [round(norm[int(len(norm) * .05)], 1), round(norm[int(len(norm) * .95) - 1], 1)] if len(norm) > 20 else None
+    return JSONResponse({'t': [t.strftime('%H:%M') for t, _, _ in sc], 'v': [round(x, 2) for x in v], 'thr': round(eng.thr, 2),
+                         'top': [[n for n, _ in th.get(t, [])] for t, _, _ in sc], 'band': band, 'alarms': al, 'ops': ops,
+                         'top_now': eng.top_now[:5], 'narr': {'on': narr['on'], 'busy': narr['busy'], 'items': narr['items'][-12:]}})
+
+
+async def narrate(req: Request):
+    b = await req.json(); narr['on'] = bool(b.get('on')); narr['last_state'] = None
+    return JSONResponse({'on': narr['on']})
 
 
 app = Starlette(routes=[Route('/', index), Route('/api/meta', meta), Route('/api/state', state), Route('/api/switch', do_switch, methods=['POST']), Route('/api/inject', do_inject, methods=['POST']),
                         Route('/api/control', control, methods=['POST']), Route('/api/ask', ask, methods=['POST']),
-                        Route('/api/agent', agent_status), Route('/api/preview', preview), Route('/api/trend', trend), Mount('/static', StaticFiles(directory=STATIC))])
+                        Route('/api/agent', agent_status, methods=['GET', 'POST']), Route('/api/score', score), Route('/api/narrate', narrate, methods=['POST']),
+                        Route('/api/preview', preview), Route('/api/trend', trend), Mount('/static', StaticFiles(directory=STATIC))])
 
 
 def main():
     eng.warmup(int(os.environ.get('WARMUP', 40)))
     threading.Thread(target=eng.run, daemon=True).start()
     threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=narrator, daemon=True).start()
     mcp_app = build_mcp(tools).streamable_http_app(host='127.0.0.1')
     threading.Thread(target=lambda: uvicorn.run(mcp_app, host='127.0.0.1', port=8766, log_level='warning'), daemon=True).start()
     uvicorn.run(app, host=os.environ.get('SCADA_HOST', '127.0.0.1'), port=int(os.environ.get('PORT', 8765)), log_level='warning')

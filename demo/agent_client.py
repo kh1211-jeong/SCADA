@@ -47,13 +47,33 @@ class AgentClient:
         self.tools = tools
         self.gc = _env(AGENT_DIR / 'goclaw-scada' / '.env')
         self.ll = _env(AGENT_DIR / 'litellm' / '.env')
+        self.enabled = True                                         # 화면의 "에이전트 연결/해제"
+        self.mode = 'direct' if os.environ.get('AGENT_MODE') == 'direct' else 'auto'   # auto | goclaw | direct
+        self.stats = {'n': 0, 'fail': 0, 'last_sec': None, 'last_via': None}
+
+    def status(self):
+        g, l = _alive(f'{GOCLAW}/health'), _alive(f'{LITELLM}/health/liveliness')
+        return {'enabled': self.enabled, 'mode': self.mode, 'backend': self.backend() if self.enabled else None,
+                'goclaw': {'url': GOCLAW, 'alive': g, 'agent': 'scada-diag'},
+                'litellm': {'url': LITELLM, 'alive': l, 'model': 'scada-gemini (gemini-flash-lite → 실패 시 gemini-3.5-flash)'},
+                'stats': self.stats}
 
     def backend(self):
-        if os.environ.get('AGENT_MODE') != 'direct' and _alive(f'{GOCLAW}/health'): return 'goclaw'
-        if _alive(f'{LITELLM}/health/liveliness'): return 'litellm'
+        if not self.enabled: return None
+        if self.mode != 'direct' and _alive(f'{GOCLAW}/health'): return 'goclaw'
+        if self.mode != 'goclaw' and _alive(f'{LITELLM}/health/liveliness'): return 'litellm'
         return None
 
+    def explain(self, prompt, system):
+        """도구 없이 한 번에 답하는 짧은 해설(이상 점수 실시간 해설용, 수 초). 데이터는 prompt에 담아 보낸다."""
+        if not self.enabled: raise RuntimeError('에이전트 연결 해제 상태')
+        hdr = {'Authorization': f"Bearer {self.ll.get('LITELLM_MASTER_KEY', '')}"}
+        d = _post(f'{LITELLM}/v1/chat/completions', {'model': 'scada-gemini', 'temperature': 0.2, 'max_tokens': 400,
+                  'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': prompt}]}, hdr, timeout=60)
+        return d['choices'][0]['message']['content'] or ''
+
     def ask(self, text):
+        if not self.enabled: raise RuntimeError('에이전트 연결이 해제되어 있습니다 — 상단 "에이전트"에서 연결하세요')
         b = self.backend()
         if b == 'goclaw':
             try:

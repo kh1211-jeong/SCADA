@@ -70,6 +70,7 @@ class Engine:
         self.lock = threading.RLock()
         self.rows: deque = deque(maxlen=BUF)           # (timestamp, dict tag->value)
         self.scores: deque = deque(maxlen=BUF)         # (timestamp, score, thr)
+        self.top_hist: deque = deque(maxlen=BUF)       # (timestamp, [상위 기여 설비 3개]) — 점수 추이 화면·해설용
         self.raw_scores: deque = deque(maxlen=SMOOTH)
         self.alarms: list[dict] = []
         self.ops: list[dict] = []                      # 개폐 기록
@@ -325,6 +326,7 @@ class Engine:
         top10 = np.argsort(z)[-10:][::-1]
         self.top_now = [{'feature': self.fb.cols[j], 'node': self.col_node[j], 'kind': self.col_kind[j], 'score': round(float(z[j]), 1)}
                         for j in top10 if z[j] > 3]
+        self.top_hist.append((ts, [(f['node'], f['score']) for f in self.top_now[:3]]))
         self._alarm_fsm(ts, s)
 
     def _alarm_fsm(self, ts, s):

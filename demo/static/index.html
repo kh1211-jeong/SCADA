@@ -14,9 +14,8 @@
   <label class="toggle"><input type="checkbox" id="auto" checked>자동 진단</label>
   <button id="reset" class="ghost">평상 복귀</button>
   <div class="spacer"></div>
-  <div id="scorePill" class="pill">이상 점수 —</div>
-  <span class="dotb" id="modelBadge">모델</span>
-  <span class="dotb" id="agentBadge">에이전트</span>
+  <button id="scorePill" class="pill" title="실시간 이상 점수 추이 보기">이상 점수 —</button>
+  <button id="agentBtn" class="dotb" title="에이전트 연결 정보">에이전트</button>
 </header>
 
 <main>
@@ -50,6 +49,7 @@
     </div>
   </section>
 </main>
+<div id="modal" class="modal" hidden><div class="mbox"><div class="mhead"><b id="mTitle"></b><button id="mClose" class="ghost">닫기</button></div><div id="mBody"></div></div></div>
 <script src="/static/app.js"></script>
 </body>
 </html>

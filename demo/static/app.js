@@ -51,7 +51,7 @@ function drawDiagram() {
     } else if (n.etype === 'STR') {
       el('circle', { r: 11, class: 'xf', 'data-xf': 1 }, g); el('text', { y: 4 }, g).textContent = 'PV';
     } else if (n.etype === 'RETURN') {
-      el('path', { d: 'M-8,-6 L8,-6 L0,8 Z', fill: '#6b7690' }, g);
+      el('path', { d: 'M-8,-6 L8,-6 L0,8 Z', fill: '#777777' }, g);
     } else if (SWT.has(n.etype)) {
       el('rect', { x: -11, y: -11, width: 22, height: 22, rx: 3, class: 'swbox' }, g);
       el('text', { x: 0, y: -16, class: 'nm' }, g).textContent = short(n.id);
@@ -156,7 +156,7 @@ function drawSpark() {
     el('polyline', { points: ys.map((y, j) => `${(j / Math.max(1, ys.length - 1)) * 400},${50 - ((y - lo) / rg) * 44}`).join(' '), fill: 'none', stroke: cols[i], 'stroke-width': 1.3 }, svg);
     el('text', { x: 4 + i * 120, y: 11, fill: cols[i], 'font-size': 10 }, svg).textContent = `${QK[k][0]} ${fmt(ys[ys.length - 1], QK[k][1])}`;
   });
-  el('text', { x: 396, y: 52, fill: '#66728f', 'font-size': 9, 'text-anchor': 'end' }, svg).textContent = '최근 2시간';
+  el('text', { x: 396, y: 52, fill: '#7a7a7a', 'font-size': 9, 'text-anchor': 'end' }, svg).textContent = '최근 2시간';
 }
 function renderEq(full) {
   if (PTAB !== 'eq') return;
@@ -222,7 +222,7 @@ function renderPanel(full) {
 }
 function drawChart() {
   const svg = $('#chart'); svg.innerHTML = '';
-  const s = ST.scores; if (!s.length) { el('text', { x: 200, y: 40, fill: '#5d6884', 'font-size': 11, 'text-anchor': 'middle' }, svg).textContent = '이상 점수 대기 중'; return; }
+  const s = ST.scores; if (!s.length) { el('text', { x: 200, y: 40, fill: '#6e6e6e', 'font-size': 11, 'text-anchor': 'middle' }, svg).textContent = '이상 점수 대기 중'; return; }
   const thr = ST.thr || 1, mx = Math.max(thr * 1.5, ...s.map((x) => x[1]));
   const X = (i) => (i / Math.max(179, s.length - 1)) * 400, Y = (v) => 66 - (Math.max(v, 0) / mx) * 62;
   el('line', { x1: 0, x2: 400, y1: Y(thr), y2: Y(thr), stroke: '#ff8a3d', 'stroke-dasharray': '4 3', 'stroke-width': 1 }, svg);
@@ -254,8 +254,10 @@ async function tick() {
   try {
     ST = await api('/api/state?system=' + SYS);
     $('#simtime').textContent = ST.time;
-    const pill = $('#scorePill'), al = ST.score !== null && ST.score > ST.thr;
-    pill.textContent = ST.score === null ? '이상 점수 —' : `이상 점수 ${ST.score} / ${ST.thr}`; pill.classList.toggle('alarm', al);
+    const pill = $('#scorePill'), al = ST.score !== null && ST.score > ST.thr, wr = !al && ST.score !== null && ST.score > 30;
+    pill.innerHTML = ST.score === null ? '이상 점수 —' : `<span class="lv">${al ? '경보' : wr ? '상승' : '정상'}</span>이상 점수 ${ST.score.toFixed(1)} <span class="hint">/ 기준 ${Math.round(ST.thr)}</span>`;
+    pill.classList.toggle('alarm', al); pill.classList.toggle('warn', wr);
+    if (MODAL === 'score') renderScore();
     $('#topNow').innerHTML = ST.top_now.length ? ST.top_now.slice(0, 3).map((f) => `<b>${f.node}</b> ${f.score}`).join(' · ') : '';
     const live = ST.alarms.filter((a) => a.end === '진행 중').length; $('#nAl').textContent = live || '';
     $('#auto').checked = ST.auto;
@@ -266,11 +268,7 @@ async function tick() {
 
 async function init() {
   META = await api('/api/meta');
-  const m = META.model, mb = $('#modelBadge');
-  if (m) { mb.textContent = `경량 모델 ${m.size_kb.toFixed(0)}KB`; mb.classList.add('ok'); mb.title = `${m.name} · 1회 추론 ${m.latency_ms.toFixed(1)}ms`; }
-  else { mb.textContent = '모델 없음'; mb.classList.add('bad'); }
-  const ag = await api('/api/agent'), ab = $('#agentBadge');
-  ab.textContent = ag.backend ? `에이전트(${ag.backend})` : '에이전트 꺼짐'; ab.classList.add(ag.backend ? 'ok' : 'bad');
+  refreshAgentBtn(); setInterval(refreshAgentBtn, 10000);
   renderTabs(); drawDiagram(); setPTab('eq'); tick(); setInterval(tick, 1000); setInterval(loadSpark, 5000);
 }
 $('#speed').querySelectorAll('button').forEach((b) => b.onclick = async () => {
@@ -283,4 +281,101 @@ $('#ptabs').querySelectorAll('button').forEach((b) => b.onclick = () => setPTab(
 async function send(q) { if (!q) return; await api('/api/ask', { text: q }); tick(); }
 $('#ask').onsubmit = (e) => { e.preventDefault(); const q = $('#q').value.trim(); $('#q').value = ''; send(q); };
 $('#quick').querySelectorAll('button').forEach((b) => b.onclick = () => send(b.textContent));
+
+// ------------------------------------------------------------------ 팝업: 에이전트 연결 / 이상 점수 추이
+let MODAL = null, AG = null;
+function openModal(kind, title) { MODAL = kind; $('#mTitle').textContent = title; $('#modal').hidden = false; }
+function closeModal() { MODAL = null; $('#modal').hidden = true; }
+$('#mClose').onclick = closeModal;
+$('#modal').onclick = (e) => { if (e.target.id === 'modal') closeModal(); };
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+async function refreshAgentBtn() {
+  AG = await api('/api/agent'); const b = $('#agentBtn');
+  b.textContent = !AG.enabled ? '에이전트 해제됨' : AG.backend ? '에이전트 연결됨' : '에이전트 응답 없음';
+  b.classList.toggle('ok', AG.enabled && !!AG.backend); b.classList.toggle('bad', !AG.enabled || !AG.backend);
+  if (MODAL === 'agent') renderAgent();
+}
+$('#agentBtn').onclick = async () => { openModal('agent', '진단 에이전트 연결'); await refreshAgentBtn(); };
+function renderAgent() {
+  const a = AG, ok = (x) => `<span class="${x ? 'on-ok' : 'on-bad'}">${x ? '● 동작' : '● 꺼짐'}</span>`;
+  const via = { goclaw: 'goclaw 게이트웨이 → LiteLLM → Gemini', litellm: 'LiteLLM 직접 → Gemini (goclaw 미사용)' }[a.backend] || '연결 안 됨';
+  const m = a.model;
+  $('#mBody').innerHTML = `
+    <div class="btnrow"><b>상태</b> ${a.enabled ? '<span class="on-ok">연결됨</span>' : '<span class="on-bad">해제됨</span>'}
+      ${a.enabled ? '<button class="btn neg" data-en="0">에이전트 빼기(연결 해제)</button>' : '<button class="btn pri" data-en="1">에이전트 붙이기(연결)</button>'}</div>
+    <div class="hint">해제하면 자동 진단·채팅 질문·실시간 해설이 모두 멈추고, 이상 탐지 모델과 경보는 그대로 동작합니다.</div>
+    <div class="btnrow"><b>호출 경로</b>
+      ${[['auto', '자동(goclaw 우선)'], ['goclaw', 'goclaw만'], ['direct', 'LiteLLM 직접']].map(([k, t]) => `<button class="btn ${a.mode === k ? 'sel' : ''}" data-mode="${k}">${t}</button>`).join('')}</div>
+    <table class="kvt">
+      <tr><td>현재 경로</td><td>${via}</td></tr>
+      <tr><td>goclaw 게이트웨이</td><td>${ok(a.goclaw.alive)} ${a.goclaw.url} · 에이전트 ${a.goclaw.agent}</td></tr>
+      <tr><td>LiteLLM 프록시</td><td>${ok(a.litellm.alive)} ${a.litellm.url}</td></tr>
+      <tr><td>언어 모델</td><td>${a.litellm.model}</td></tr>
+      <tr><td>조회 도구 ${a.tools.length}종</td><td>${a.tools.join(', ')} <span class="hint">(읽기 전용, 제어 불가)</span></td></tr>
+      <tr><td>자동 진단</td><td>${a.auto_diag ? '켜짐 — 경보 즉시, 차단기 조작 3분 뒤 진단' : '꺼짐'}</td></tr>
+      <tr><td>응답 기록</td><td>성공 ${a.stats.n}회 · 실패 ${a.stats.fail}회${a.stats.last_sec ? ` · 최근 ${a.stats.last_sec}초 (${a.stats.last_via})` : ''}</td></tr>
+      <tr><td>이상 탐지 모델</td><td>${m ? `${m.name} · ${m.size_kb}KB · 1회 추론 ${m.latency_ms}ms · 기준선 ${m.threshold}` : '없음'}</td></tr>
+    </table>`;
+  $('#mBody').querySelectorAll('[data-en]').forEach((b) => b.onclick = async () => { await api('/api/agent', { enabled: b.dataset.en === '1' }); refreshAgentBtn(); });
+  $('#mBody').querySelectorAll('[data-mode]').forEach((b) => b.onclick = async () => { await api('/api/agent', { mode: b.dataset.mode }); refreshAgentBtn(); });
+}
+
+let SC = null, scBusy = false, scHover = null;
+$('#scorePill').onclick = () => { openModal('score', '이상 점수 실시간 추이'); renderScore(true); };
+document.querySelector('.score-card').style.cursor = 'pointer';
+document.querySelector('.score-card').onclick = () => $('#scorePill').click();
+async function renderScore(first) {
+  if (scBusy) return; scBusy = true;
+  try { SC = await api('/api/score?minutes=180'); } finally { scBusy = false; }
+  if (first || !$('#bigChart')) {
+    $('#mBody').innerHTML = `
+      <div class="hint">이상 점수 = 가장 이상한 센서 5개가 평소보다 몇 배 예측을 빗나가는지(6분 평균). 평상시 10 이하, 기준선(정상 운전 상위 1%)을 3분 넘게 넘으면 경보.</div>
+      <svg id="bigChart" viewBox="0 0 900 300" preserveAspectRatio="none"></svg>
+      <div class="hint" id="hov">그래프 위에 마우스를 올리면 그 시각의 점수와 원인 설비가 보입니다. 세로 점선 = 차단기 조작.</div>
+      <div class="sgrid">
+        <div><div class="btnrow"><b>에이전트 실시간 해설</b><button class="btn" id="narBtn"></button><span class="hint" id="narSt"></span></div><div class="narr" id="narr"></div></div>
+        <div><b>지금 점수를 올리는 설비</b><div class="toplist" id="topl"></div></div>
+      </div>`;
+    $('#narBtn').onclick = async () => { await api('/api/narrate', { on: !SC.narr.on }); renderScore(); };
+    const svg = $('#bigChart');
+    svg.onmousemove = (e) => { const r = svg.getBoundingClientRect(); scHover = Math.round(((e.clientX - r.left) / r.width) * 900); drawBig(); };
+    svg.onmouseleave = () => { scHover = null; drawBig(); };
+  }
+  drawBig();
+  const nr = SC.narr;
+  $('#narBtn').textContent = nr.on ? '해설 끄기' : '해설 켜기'; $('#narBtn').className = 'btn ' + (nr.on ? 'neg' : 'pri');
+  $('#narSt').textContent = !AG?.enabled ? '에이전트 연결 해제 상태' : nr.busy ? '해설 작성 중…' : nr.on ? '상태가 바뀌면 바로, 평소엔 30초마다 갱신' : '';
+  const sig = nr.items.map((x) => x.time + x.text.length).join();
+  if ($('#narr').dataset.sig !== sig) {
+    $('#narr').dataset.sig = sig;
+    $('#narr').innerHTML = nr.items.length ? nr.items.slice().reverse().map((x) => `<div class="it ${x.err ? 'err' : ''}"><div class="h">${x.time}${x.score !== null ? ` · 점수 ${x.score}` : ''}${x.sec ? ` · ${x.sec}초` : ''}</div>${esc(x.text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(EQRE, (m) => META.node_system[m] ? `<a class="eq" onclick="closeModal();focusNode('${m}')">${m}</a>` : m)}</div>`).join('') : '<div class="hint">해설 켜기를 누르면 에이전트가 점수 변화를 짧게 설명합니다.</div>';
+  }
+  $('#topl').innerHTML = SC.top_now.length ? SC.top_now.map((f) => `<div><a class="eq" onclick="closeModal();focusNode('${f.node}')">${f.node}</a><span class="hint">${f.kind}</span><b>${f.score}</b></div>`).join('') : '<div class="hint">평소보다 3배 넘게 빗나가는 설비 없음</div>';
+}
+function drawBig() {
+  const svg = $('#bigChart'); if (!svg || !SC) return; svg.innerHTML = '';
+  const v = SC.v, n = v.length, W = 900, Hh = 300, L = 46, B = 22; if (!n) return;
+  const thr = SC.thr, mx = Math.max(thr * 1.3, ...v) * 1.05;
+  const lg = (x) => Math.log10(1 + Math.max(x, 0)), X = (i) => L + (i / Math.max(n - 1, 1)) * (W - L - 8), Y = (x) => (Hh - B) - (lg(x) / lg(mx)) * (Hh - B - 10);
+  for (const g of [1, 10, 100, 1000, 10000].filter((g) => g <= mx)) {
+    el('line', { x1: L, x2: W, y1: Y(g), y2: Y(g), stroke: '#222', 'stroke-width': 1 }, svg);
+    el('text', { x: L - 6, y: Y(g) + 4, fill: '#777', 'font-size': 11, 'text-anchor': 'end' }, svg).textContent = g;
+  }
+  if (SC.band) el('rect', { x: L, width: W - L, y: Y(SC.band[1]), height: Math.max(1, Y(SC.band[0]) - Y(SC.band[1])), fill: '#2fbf7122' }, svg);
+  const idx = (t) => SC.t.indexOf(t);
+  for (const a of SC.alarms) { const i0 = idx(a.start), i1 = a.end ? idx(a.end) : n - 1; if (i0 >= 0) el('rect', { x: X(i0), width: Math.max(2, X(i1 < 0 ? n - 1 : i1) - X(i0)), y: 0, height: Hh - B, fill: '#ff3b3b18' }, svg); }
+  for (const o of SC.ops) { const i = idx(o.t); if (i >= 0) el('line', { x1: X(i), x2: X(i), y1: 0, y2: Hh - B, stroke: '#f2c14e66', 'stroke-dasharray': '3 3' }, svg); }
+  el('line', { x1: L, x2: W, y1: Y(thr), y2: Y(thr), stroke: '#ff8a3d', 'stroke-dasharray': '6 4', 'stroke-width': 1.5 }, svg);
+  el('text', { x: W - 6, y: Y(thr) - 5, fill: '#ff8a3d', 'font-size': 11, 'text-anchor': 'end' }, svg).textContent = `기준선 ${Math.round(thr)}`;
+  el('polyline', { points: v.map((x, i) => `${X(i)},${Y(x)}`).join(' '), fill: 'none', stroke: '#e8e8e8', 'stroke-width': 1.6 }, svg);
+  for (let k = 0; k < n; k += Math.ceil(n / 8)) el('text', { x: X(k), y: Hh - 6, fill: '#777', 'font-size': 11, 'text-anchor': 'middle' }, svg).textContent = SC.t[k];
+  if (scHover !== null) {
+    const i = Math.max(0, Math.min(n - 1, Math.round(((scHover - L) / (W - L - 8)) * (n - 1))));
+    el('line', { x1: X(i), x2: X(i), y1: 0, y2: Hh - B, stroke: '#888' }, svg); el('circle', { cx: X(i), cy: Y(v[i]), r: 4, fill: '#fff' }, svg);
+    const ops = SC.ops.filter((o) => o.t === SC.t[i]).map((o) => `${o.node} ${o.action}`).join(', ');
+    $('#hov').innerHTML = `<b>${SC.t[i]}</b> 점수 <b>${v[i]}</b> ${v[i] > thr ? '<span class="chip a">경보 수준</span>' : v[i] > 30 ? '<span class="chip w">상승</span>' : '<span class="chip n">정상</span>'} · 원인 상위: ${(SC.top[i] || []).join(', ') || '없음'}${ops ? ' · 조작: ' + ops : ''}`;
+  }
+}
+
 init();
