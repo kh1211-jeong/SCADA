@@ -105,15 +105,17 @@ def targets_for(kind):
 
 # ---------------------------------------------------------------- 자동 진단
 def on_event(kind, obj):
+    if kind == 'warn':
+        say('system', obj['text']); return
     if not auto_diag['on']: return
     if kind == 'alarm':
         say('system', f"경보 {obj['id']} · {', '.join(obj['top_nodes'])}")
         jobs.put((f"[자동 진단 요청] 모의 시각 {eng.tstr()}에 이상 경보 {obj['id']}가 발생했다(기여 상위 설비: {', '.join(obj['top_nodes'])}). "
                   f"원인과 위치를 진단해 줘.", 0))
     elif kind == 'switch':
-        say('system', f"{obj['node']} {obj['action']}")
+        say('system', f"{obj['node']} {obj['action']}" + (f" · {obj['cause']}" if obj.get('cause') else ''))
         jobs.put((f"[자동 진단 요청] 모의 시각 {obj['time']}에 {obj['node']}({TYPE_KO.get(obj['etype'], obj['etype'])})가 "
-                  f"{obj['action']}되었다(조작 주체: {obj['by']}). 정전·영향 범위와 이상 여부를 진단해 줘.", 3))
+                  f"{obj['action']}되었다(조작 주체: {obj['by']}{', 원인: ' + obj['cause'] if obj.get('cause') else ''}). 정전·영향 범위와 이상 여부를 진단해 줘.", 3))
 
 
 eng.listeners.append(on_event)
@@ -185,7 +187,7 @@ async def state(req: Request):
 
 async def do_switch(req: Request):
     b = await req.json()
-    return JSONResponse(eng.switch(b['node'], bool(b['closed']), trip=bool(b.get('trip'))))
+    return JSONResponse(eng.switch(b['node'], bool(b['closed']), trip=bool(b.get('trip')), force_parallel=bool(b.get('force_parallel'))))
 
 
 async def do_inject(req: Request):
@@ -224,12 +226,15 @@ async def preview(req: Request):
         now = eng.energized(); imp = eng.impact(node, closed)
         lost, gain, kw = imp['lost'], imp['gained'], imp['lost_kw']
         warn = []
-        if closed and p.etype[node] in ('TIE', 'XCB', 'DIS'):
-            nb = [m for m in eng.adj.get(node, ()) if m in now]
-            if len(nb) >= 2: warn.append('양쪽이 모두 가압 상태 — 병렬(루프) 운전이 됩니다')
+        if imp['parallel']:
+            warn.append(f"병렬 운전 금지 인터록 — 양쪽이 이미 가압 중({', '.join(imp['parallel'])}). 먼저 한쪽 주 차단기를 개방하세요")
+        for b in imp['backup']:
+            if b['예상_%'] > 100: warn.append(f"백업 과부하 — {b['변압기']} 예상 부하율 {b['예상_%']:.0f}% (현재 {b['현재_%']:.0f}%), 과부하 보호로 트립될 수 있습니다")
+        if not closed and p.etype[node] == 'DIS' and abs(eng.last.get(f'{node}_CURRENT', 0) or 0) > 1:
+            warn.append('단로기에 부하 전류가 흐르는 중 — 개방 시 아크 위험')
         if not closed and p.etype[node] in ('GCB', 'MAIN') : warn.append('주 계통 차단기 — 넓은 범위 정전')
         return JSONResponse({'lost': lost, 'gained': gain, 'lost_kw': round(kw, 1),
-                             'n_load_lost': imp['n_load_lost'], 'warnings': warn})
+                             'n_load_lost': imp['n_load_lost'], 'warnings': warn, 'parallel': bool(imp['parallel']), 'backup': imp['backup']})
 
 
 async def trend(req: Request):

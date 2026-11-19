@@ -96,6 +96,11 @@ class Tools:
         return {'equipment': info(node), 'upstream_path': [info(n) for n in up], 'children': [info(n) for n in self.children.get(node, [])],
                 'siblings': [info(n) for n in sib][:12], 'tie_links': [info(n) for n in ties]}
 
+    def get_grid_rules(self) -> dict:
+        """계통 운전 규칙: 설비 종류별 역할·트립 가능 여부, 정전 판단 기준, 병렬 운전 금지 인터록, 과부하 보호 곡선, 백업 용량, 모의 한계."""
+        from demo.grid_rules import RULES
+        return RULES
+
     def find_equipment(self, keyword: str, limit: int = 30) -> dict:
         """설비 이름 검색(부분 일치). 예: '3F12A', 'LTR_3F11', 'BTR'."""
         hit = [n for n in self.N.index if keyword.upper() in n.upper()]
@@ -172,7 +177,7 @@ class Tools:
                 'values': {QTY_KO.get(k, k): _r(self.e.last.get(t)) for k, t in q.items()}}
 
 
-TOOL_NAMES = ['get_overview', 'list_alarms', 'get_alarm', 'get_switching', 'get_topology', 'find_equipment', 'get_trend',
+TOOL_NAMES = ['get_grid_rules', 'get_overview', 'list_alarms', 'get_alarm', 'get_switching', 'get_topology', 'find_equipment', 'get_trend',
               'check_physics', 'get_live_values']
 
 

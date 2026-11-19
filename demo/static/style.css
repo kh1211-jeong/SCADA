@@ -53,6 +53,8 @@ main { display: grid; grid-template-columns: 1fr 420px; height: calc(100% - 48px
 .edge.tie { stroke-dasharray: 5 4; stroke-width: 1.6; }
 .extln { stroke: var(--tie); stroke-width: 1.6; fill: none; stroke-dasharray: 4 3; }
 .ext { fill: var(--tie); font-size: 11px; font-weight: 600; }
+.confirm .bad { color: #ff6b6b; } .confirm .err { color: #ff8a8a; font-size: 12px; margin-top: 4px; }
+.confirm .go.fp { background: #7a4b00; }
 .edge.viatie { stroke-dasharray: 10 5; animation: tieflow 1.2s linear infinite; }
 @keyframes tieflow { to { stroke-dashoffset: -15; } }
 .edge.flash { animation: eflash .5s ease-in-out 4; }

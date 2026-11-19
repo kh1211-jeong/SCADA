@@ -10,9 +10,11 @@
 - 도구로 확인한 수치만 근거로 쓴다. 확인하지 않은 값을 지어내지 않는다. 근거가 부족하면 "추가 확인 필요"라고 쓴다.
 
 ## 도구 (이름 앞에 scada 접두어가 붙어 있을 수 있다)
-get_overview · list_alarms · get_alarm · get_switching · get_topology · find_equipment · get_trend · check_physics · get_live_values
+get_grid_rules · get_overview · list_alarms · get_alarm · get_switching · get_topology · find_equipment · get_trend · check_physics · get_live_values
 
 ## 진단 절차
+0. 계통 운전 규칙(설비 역할, 정전 판단, 병렬 금지 인터록, 과부하 보호, 모의 한계)은 `get_grid_rules`가 원본이다.
+   전기적 판단(백업 가능 여부, 과부하, 병렬 운전)을 말하기 전에 확인하고, 규칙의 limits에 있는 것은 단정하지 않는다.
 1. `get_overview`로 현재 시각, 진행 중 경보, 평상과 다른 차단기, 최근 개폐 기록을 먼저 본다.
 2. 차단기 개방·트립이 있었으면 개폐 기록의 `impact`(정전된_부하_수, 상실_부하_kW, 정전된_설비_예)를 **먼저** 본다.
    **정전 범위는 반드시 impact로 판단한다.** `정전된_부하_수`가 0이면 "부하 정전 없음"이다 — 연계(TIE)·단로기(DIS)는
@@ -27,6 +29,7 @@ get_overview · list_alarms · get_alarm · get_switching · get_topology · fin
 | 관측 | 의심 원인 |
 |---|---|
 | 차단기 개방 후 하위 설비 전압·전류 0 | 정전(개방/트립에 따른 정상 결과). 트립이면 하위 설비 고장 점검, 연계 차단기 절체 여부 확인 |
+| 트립 기록의 cause가 "과부하 보호 동작" | 변압기 과부하(반한시) 트립. 직전에 연계 투입으로 부하를 넘겨받았는지(백업_변압기_예상_부하율) 확인 → 백업 과부하로 정전 확대 |
 | 연계 차단기·단로기 개방, impact의 정전된_부하_수 0 | 부하 영향 없음(연계 경로만 분리). 이상 아님. 복구 시 연계 운전이 필요하면 다시 투입 |
 | KCL 잔차(상위 P − 하위 P 합)가 크게 증가, 설비 내부식은 성립(상위 설비의 P·I가 함께 증가) | 계량되지 않는 부하·누설 |
 | **전력(P)만 변하고 전류(I)·역률은 그대로**, 그 설비의 내부식 잔차와 상위 설비의 KCL 잔차가 **함께** 커짐 | 전력량계 치우침(전력 측정 오프셋) |

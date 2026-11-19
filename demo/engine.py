@@ -45,7 +45,12 @@ EVENT_TYPES = {   # 화면에서 주입 가능한 이벤트: 대상 설비 종�
 }
 
 
-NO_TRIP = {'DIS'}   # 단로기: 보호계전기가 없어 트립되지 않음(무부하 개폐만)
+try:
+    from demo.grid_rules import RULES, overload_minutes
+except ImportError:
+    from grid_rules import RULES, overload_minutes
+NO_TRIP = {k for k, v in RULES['equipment'].items() if v.get('trip') is False}   # 단로기 등: 트립 불가
+LOAD_TYPES = tuple(RULES['outage']['load_types'])
 
 
 class Engine:
@@ -85,6 +90,11 @@ class Engine:
         self.normal_status = None
         self.last_change = {}                          # 스위치 노드 -> 마지막 개폐 시각(분 인덱스)
         self.minute = 0
+        self.live_kw = {}                              # 설비 -> 마지막으로 가압돼 있을 때의 유효전력(백업 부하율 예측용)
+        self.heat = {}                                 # 변압기 -> 과부하 누적 열량(1 이상이면 트립)
+        self.warned = set()                            # 과부하 주의를 이미 알린 변압기
+        pe = self.edges[self.edges.etype == 'power']
+        self.pparent = dict(zip(pe.dst, pe.src))       # 평상 구조의 상위 설비
         self._load_model()
 
     # ------------------------------------------------------------------ 모델
@@ -123,7 +133,7 @@ class Engine:
     def tstr(self, t=None): return self.ts(t).strftime('%Y-%m-%d %H:%M')
 
     # ------------------------------------------------------------------ 운영자 조작
-    def switch(self, node, closed, trip=False, who='운영자'):
+    def switch(self, node, closed, trip=False, who='운영자', force_parallel=False, cause=None):
         with self.lock:
             if node not in self.plant.sw_idx: return {'error': f'{node}는 개폐 설비가 아님'}
             if trip and self.plant.etype[node] in NO_TRIP:
@@ -131,14 +141,19 @@ class Engine:
             cur = int(self.sim.state[self.plant.sw_idx[node]])
             if cur == int(closed): return {'ok': True, 'note': '이미 같은 상태'}
             imp = self.impact(node, closed)
+            if closed and imp['parallel'] and RULES['interlock']['no_parallel']['enabled'] and not force_parallel:
+                return {'error': f"병렬 운전 금지 인터록: {node} 양쪽이 이미 다른 변압기({', '.join(imp['parallel'])})로 가압 중입니다. "
+                                 f"먼저 한쪽 주 차단기를 개방한 뒤 투입하세요(차단 후 투입).", 'interlock': 'no_parallel'}
             self.sim.state[self.plant.sw_idx[node]] = int(closed)   # 즉시 반영(다음 1분 계산부터 적용)
             op = {'time': self.tstr(), 'node': node, 'action': '투입' if closed else ('트립(보호계전기 동작)' if trip else '개방'),
                   'by': '보호계전기' if trip else who, 'etype': self.plant.etype[node],
+                  **({'cause': cause} if cause else {}), **({'warning': '병렬 운전(무정전 절체) — 순환 전류·단락 용량 주의'} if closed and imp['parallel'] else {}),
                   'impact': {'정전된_설비_수': len(imp['lost']), '정전된_부하_수': imp['n_load_lost'], '상실_부하_kW': imp['lost_kw'],
-                             '새로_가압된_설비_수': len(imp['gained']), '정전된_설비_예': imp['lost'][:8]}}
+                             '새로_가압된_설비_수': len(imp['gained']), '정전된_설비_예': imp['lost'][:8],
+                             **({'백업_변압기_예상_부하율': imp['backup']} if imp['backup'] else {})}}
             self.ops.append(op)
             if trip:   # 트립은 보호계전기 동작 = 설비 고장으로 기록 (정답 목록에도 남김)
-                self._add_injected('breaker_trip', node, 0, {}, '차단기 트립(보호계전기 동작)')
+                self._add_injected('breaker_trip', node, 0, {'cause': cause} if cause else {}, f'차단기 트립({cause or "보호계전기 동작"})')
             self._notify('switch', op)
             return {'ok': True, 'op': op}
 
@@ -224,6 +239,7 @@ class Engine:
             self.minute += 1
             self.rows.append((ts, row))
             self.last = row
+            self._protect(row)
             if self.normal_status is None:
                 self.normal_status = {s: int(self.plant.normal_state[self.plant.sw_idx[s.rsplit('_', 1)[0]]])
                                       for s in self.status_tags if s.rsplit('_', 1)[0] in self.plant.sw_idx}
@@ -234,6 +250,32 @@ class Engine:
                     if prev is not None and not np.isnan(prev) and round(prev) != round(row[s]):
                         self.last_change[n] = self.minute
             self._detect(ts)
+
+    def _protect(self, row):
+        """과부하 보호(반한시): 변압기 부하율이 곡선 시간만큼 지속되면 1차 차단기 트립. 백업 예측용 부하 전력도 기록."""
+        for name, q, unit, dec in self.tag_rows:
+            if q == 'POWER':
+                v = row.get(name)
+                if v is not None and np.isfinite(v) and abs(v) > 1: self.live_kw[name[:-6]] = abs(v)
+        ov = RULES['overload']
+        for x in list(self.sc.btr_kva) + list(self.sc.ltr_kva):
+            pct = row.get(f'{x}_LOAD')
+            if pct is None or not np.isfinite(pct): continue
+            if pct >= ov['warn_pct'] and x not in self.warned:
+                self.warned.add(x)
+                self._notify('warn', {'node': x, 'text': f'{x} 과부하 주의: 부하율 {pct:.0f}%'})
+            elif pct < ov['warn_pct'] - 5:
+                self.warned.discard(x)
+            tm = overload_minutes(pct)
+            h = self.heat.get(x, 0.0)
+            h = h + 1.0 / tm if tm else max(0.0, h - ov['cool_per_min'])
+            self.heat[x] = h
+            if h >= 1.0:
+                self.heat[x] = 0.0
+                v = self.pparent.get(x)
+                while v is not None and v not in self.plant.sw_idx: v = self.pparent.get(v)
+                if v is not None and self.sim.state[self.plant.sw_idx[v]]:
+                    self.switch(v, False, trip=True, cause=f'과부하 보호 동작 — {x} 부하율 {pct:.0f}%')
 
     def _rewind(self):
         """시나리오(42일) 끝에 닿으면 1주 되감아 무한 진행. 요일·시각·설비 상태는 그대로 이어지고 표시 시각은 계속 흐른다."""
@@ -329,9 +371,42 @@ class Engine:
         st2 = st.copy(); st2[p.sw_idx[node]] = int(closed)
         after = set(self.sim._topology(st2)[0])
         lost, gain = sorted(now - after), sorted(after - now)
-        loads = [n for n in lost if p.etype[n] in ('ACB', 'ACB_MAIN_EMG')]
+        loads = [n for n in lost if p.etype[n] in LOAD_TYPES]
         kw = sum(abs(self.last.get(f'{n}_POWER', 0) or 0) for n in loads)
-        return {'lost': lost, 'gained': gain, 'n_load_lost': len(loads), 'lost_kw': round(float(kw), 1)}
+        # 병렬 판정: 투입할 개폐기의 이웃 중 이미 가압된 쪽이 둘 이상이고 공급 변압기가 서로 다르면 병렬(루프)
+        par = []
+        if closed:
+            src = self.sources()
+            par = sorted({src.get(m) for m in self.adj.get(node, ()) if m in now and src.get(m)})
+            par = par if len(par) >= 2 else []   # 서로 다른 변압기 2대 이상이 이 개폐기로 묶이면 병렬
+        # 백업 부하율 예측: 새로 가압될 부하가 어느 변압기로 공급되는지 → 그 변압기 예상 부하율
+        backup = []
+        gl = [n for n in gain if p.etype[n] in LOAD_TYPES]
+        if gl:
+            _, par2, _ = self.sim._topology(st2)
+            add = {}
+            for n in gl:
+                kva = self.live_kw.get(n, 0.0) / 0.9
+                v = par2.get(n)
+                while v is not None:
+                    if p.etype[v] in ('BTR', 'LTR') and v in now: add[v] = add.get(v, 0.0) + kva   # 이미 가압 중인 변압기만 = 백업하는 쪽
+                    v = par2.get(v)
+            for x, a in sorted(add.items()):
+                r = self.sc.btr_kva.get(x) or self.sc.ltr_kva.get(x, 1000.0)
+                cur = float(self.last.get(f'{x}_LOAD', 0) or 0)
+                pred = cur + 100 * a / r
+                if pred - cur >= 1: backup.append({'변압기': x, '현재_%': round(cur, 1), '예상_%': round(pred, 1), '정격_kVA': int(r)})
+        return {'lost': lost, 'gained': gain, 'n_load_lost': len(loads), 'lost_kw': round(float(kw), 1),
+                'parallel': par, 'backup': backup}
+
+    def sources(self):
+        """가압 설비 -> 가장 가까운 상위 변압기(주 변압기 또는 저압 변압기). 병렬 판정용:
+        6.6kV 연계는 주 변압기끼리, 220V 연계는 저압 변압기끼리 병렬이 되는지를 본다."""
+        order, parent, _ = self.sim._topology(self.sim.state.copy())
+        src = {}
+        for n in order:
+            src[n] = n if self.plant.etype[n] in ('BTR', 'LTR') else src.get(parent[n])
+        return src
 
     def tie_fed(self):
         """연계(TIE) 경로로 가압된 설비 -> 실제 공급 변압기. 자기 변압기가 아닌 다른 변압기에서 넘어온 전기를 화면에 표시하기 위함."""

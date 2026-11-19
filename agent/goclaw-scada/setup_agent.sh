@@ -22,5 +22,5 @@ curl -s "${H[@]}" -X POST $B/v1/mcp/servers/$SID/reconnect; echo
 curl -s "${H[@]}" $B/v1/mcp/servers/$SID/tools | head -c 600; echo
 
 # 도구 범위: 실시간 진단 도구 9종만 노출 (기본 내장 도구 49개를 다 주면 입력이 1.8만 토큰으로 커지고 느려짐)
-TOOLS='["mcp_scada__get_overview","mcp_scada__list_alarms","mcp_scada__get_alarm","mcp_scada__get_switching","mcp_scada__get_topology","mcp_scada__find_equipment","mcp_scada__get_trend","mcp_scada__check_physics","mcp_scada__get_live_values"]'
+TOOLS='["mcp_scada__get_grid_rules","mcp_scada__get_overview","mcp_scada__list_alarms","mcp_scada__get_alarm","mcp_scada__get_switching","mcp_scada__get_topology","mcp_scada__find_equipment","mcp_scada__get_trend","mcp_scada__check_physics","mcp_scada__get_live_values"]'
 curl -s "${H[@]}" -X PUT $B/v1/agents/$AID -d '{"tools_config":{"allow":'$TOOLS'},"max_tool_iterations":8}' | head -c 200; echo

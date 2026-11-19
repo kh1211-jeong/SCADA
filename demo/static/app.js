@@ -194,10 +194,14 @@ function renderConfirm() {
   const lost = pv.lost.length ? `정전 ${pv.lost.length}개 설비 · 부하 ${pv.n_load_lost}개 · 약 ${fmt(pv.lost_kw, 'kW')}` : '정전 설비 없음';
   const gain = pv.gained.length ? ` · 가압 ${pv.gained.length}개 설비` : '';
   box.innerHTML = `<div class="confirm"><b>${SEL} ${name}</b><div class="m">${lost}${gain}</div>
+    ${(pv.backup || []).map((b) => `<div class="m">백업 ${b['변압기']}: 부하율 ${b['현재_%']}% → <b class="${b['예상_%'] > 100 ? 'bad' : ''}">${b['예상_%']}%</b></div>`).join('')}
     ${pv.warnings.map((w) => `<div class="w">⚠ ${w}</div>`).join('')}
-    <div class="row"><button class="go">실행</button><button class="no">취소</button></div></div>`;
+    <div class="row">${pv.parallel ? '<button class="go fp">무정전 절체로 병렬 투입</button>' : '<button class="go">실행</button>'}<button class="no">취소</button></div>
+    <div class="err" id="opErr"></div></div>`;
   box.querySelector('.go').onclick = async () => {
-    await api('/api/switch', { node: SEL, closed: PENDING.closed, trip: PENDING.op === 'trip' }); PENDING = null; await tick(); renderEq(true);
+    const r = await api('/api/switch', { node: SEL, closed: PENDING.closed, trip: PENDING.op === 'trip', force_parallel: !!pv.parallel });
+    if (r && r.error) { $('#opErr').textContent = r.error; return; }
+    PENDING = null; await tick(); renderEq(true);
   };
   box.querySelector('.no').onclick = () => { PENDING = null; renderConfirm(); };
 }

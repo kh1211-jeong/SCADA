@@ -18,7 +18,8 @@ Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일. �
 | `src/agent/` | (구) 오프라인 경보 저장소·stdio MCP. 현재 데모는 `demo/tools.py` 사용 |
 | `scripts/run_*.py`, `analyze*.py` | 학습·채점. `run_light.py`(#4 경량화), `export_lite.py`(채점 + 데모 번들) |
 | `scripts/build_report{2,3,4}.py`, `build_report_gdn.py`, `report_figs*.py` | 보고서 docx·그림 생성(수치는 results JSON에서 자동) |
-| `demo/` | 웹 데모: `server.py`(:8765 웹, :8766 MCP), `engine.py`(시뮬레이터+모델+경보), `tools.py`(에이전트 도구 9종), `static/` |
+| `demo/grid_rules.py` | **계통 운전 규칙 단일 원본**: 설비 역할·트립 가능·정전 판단·병렬 금지 인터록·과부하 보호 곡선·백업 용량·모의 한계. 엔진이 실제로 적용하고 에이전트는 `get_grid_rules`로 읽음. 전기 규칙은 여기만 고친다 |
+| `demo/` | 웹 데모: `server.py`(:8765 웹, :8766 MCP), `engine.py`(시뮬레이터+모델+경보), `tools.py`(에이전트 도구 10종), `static/` |
 | `agent/` | 진단 에이전트 설정 사본 + `install.sh`(새 PC에서 ~/agents 구성) + goclaw 패치 |
 | `EGMS/` | 서브모듈(github.com/kh1211-jeong/EGMS) — `build_topology.py`가 설비·연결 규칙의 원본. **재구현 금지, import** |
 | `results/` | 보고서 그림·수치 JSON·경량 모델(`fmcs_v2/lite/*.pt`, `bundle.json`). 오차 캐시 npz는 git 제외 |
@@ -45,6 +46,7 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
 ## 다음 할 일
 1. #4 보고서 2종 완료(모델고도화경량화_현장적용계획 3쪽, 그래프편차신경망_기술정리 5쪽). 사용자 검토 의견 반영 대기.
 2. 데모 개선 후보(사용자와 협의): 경보 확인·조치 흐름, 6계통 개요 화면, 트립 시 자동 절체 모의, 사건 순서 기록, 조작 권한, 모선을 굵은 막대로 그리는 단선도.
+   - 완료(11-19): 병렬 금지 인터록, 백업 부하율 예측, 변압기 과부하 반한시 트립(`grid_rules.py`). 남음: 병렬(루프) 조류 계산(순환 전류·부하 분담·단락 용량) — 사용자 요청 시.
 3. (개발·잔버그 정리 후) 외부 접속용 서버 배포 — 후보: 맥북+Cloudflare Tunnel / 클라우드 VM+Docker compose(권장). 로그인·조작 권한·Gemini 사용량 제한 필수, Gemini 키는 서버에만.
 
 ## 함정 (실제로 겪은 것)
@@ -57,7 +59,7 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
   지침(AGENTS/SOUL.md)은 DB에 저장 → `sync_context.py` 후 재시작. 데모 서버 재시작 후 MCP 재연결은 `setup_agent.sh`.
 - 데모 시계는 시나리오 42일 끝에 닿으면 멈췄었음(배속 10으로 하룻밤 두면 도달 → 조작이 반영 안 됨). 지금은 `Engine._rewind()`가 1주 되감아 무한 진행, 표시 시각은 `t_off`로 계속 흐름.
 - 활선 판정은 `Plant.solve` BFS(연계 TIE 경로 포함). 주 차단기가 열려도 연계가 닫혀 있으면 하위는 살아 있는 게 맞다 → 화면에 "연계 공급 ← 변압기"와 흐르는 점선으로 표시(`Engine.tie_fed`).
-- zsh는 `HOST`를 호스트명으로 자동 설정 → 바인드 주소 변수는 `SCADA_HOST`. `run.sh` 종료 trap이 이름으로 LiteLLM·goclaw를 죽이므로 재시작이 겹치면 새로 뜬 쪽이 죽을 수 있음(에이전트 호출 실패 → 4000·18790 포트 확인).
+- zsh는 `HOST`를 호스트명으로 자동 설정 → 바인드 주소 변수는 `SCADA_HOST`. `run.sh` 종료 trap은 자기가 띄운 goclaw·LiteLLM만 정리한다(예전엔 무조건 죽여서 재시작이 겹치면 에이전트가 꺼졌음). 에이전트 호출 실패 → 4000·18790 포트 확인.
 - 계통도 색은 국내 관례(사용자 지정): 활선·투입 **적색**, 무전압·개방 **녹색**(전압 등급별 색 없음). 계통 간 연계 차단기는 레이아웃이 주 차단기와 겹치게 놓으므로 `server.diagrams()`에서 바깥으로 ±120 빼고 상대 계통 이름 표시.
 - 에이전트가 "트립 = 하위 정전"으로 넘겨짚음 → 개폐 기록에 `impact`(정전된_부하_수·상실_부하_kW)를 넣고 지침에 "정전 범위는 impact로 판단" 규칙. 단로기(DIS)는 트립 불가(`NO_TRIP`).
 - 데모 프로세스 종료 시 `pkill -f "패턴"`이 그 문자열을 담은 내 셸까지 죽인다(exit 144) → `pgrep -f "[d]emo.server"`처럼 대괄호 패턴.

@@ -8,7 +8,8 @@ if [[ $AGENT_MODE == direct ]]; then
 else
   pgrep -f "agents/goclaw/goclaw" >/dev/null || { zsh ~/agents/goclaw-scada/start.sh > ~/agents/goclaw-scada/goclaw.log 2>&1 & ; GPID=$!; }
 fi
-trap '[[ -n $GPID ]] && kill $GPID 2>/dev/null; pkill -f "agents/goclaw/goclaw"; pkill -f "litellm --config"' EXIT
+# 종료 시 이 스크립트가 띄운 것만 정리(다른 실행이 띄운 goclaw·LiteLLM은 건드리지 않음)
+trap '[[ -n $GPID ]] && { kill $GPID 2>/dev/null; pkill -f "[a]gents/goclaw/goclaw"; pkill -f "[b]in/litellm --config"; }' EXIT
 .venv/bin/python -m demo.server &
 DPID=$!
 HP=http://127.0.0.1:18790/health; [[ $AGENT_MODE == direct ]] && HP=http://127.0.0.1:4000/health/liveliness
