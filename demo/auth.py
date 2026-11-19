@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""외부 공개용 로그인: 비밀번호 2종(보기 전용 / 운영자) + 서명 쿠키. 추가 패키지 없음.
+"""외부 공개용 로그인: 계정 2종(관리자 admin / 사용자 user) + 서명 쿠키. 추가 패키지 없음.
 
-비밀번호 파일: ~/agents/demo-web/.env  (SCADA_AUTH_FILE로 경로 변경 가능, git에 올리지 않음)
-    SCADA_VIEW_PW=...   보기 전용: 화면 보기, 이상 점수 추이, 진단 채팅 질문(사용량 제한 안에서)
-    SCADA_OP_PW=...     운영자: 위 + 차단기 조작, 이벤트 주입, 배속·평상 복귀·자동 진단, 에이전트 연결/해제, 실시간 해설
+계정 파일: ~/agents/demo-web/.env  (SCADA_AUTH_FILE로 경로 변경 가능, git에 올리지 않음)
+    SCADA_ADMIN_PW=...  admin 계정: 모든 기능
+    SCADA_USER_PW=...   user 계정: 차단기 조작·트립 모의·이벤트 주입·질문·해설 가능, **에이전트 연결/해제·호출 경로 변경만 불가**
     SCADA_SECRET=...    쿠키 서명 키
 파일이 없으면 로그인 없이 동작한다(로컬 개발용). 외부 공개 전에는 반드시 파일을 만든다(make_auth_file).
 """
@@ -25,7 +25,7 @@ AUTH_FILE = Path(os.environ.get('SCADA_AUTH_FILE', Path.home() / 'agents' / 'dem
 COOKIE = 'scada_auth'
 MAX_AGE = 12 * 3600
 # 운영자만 쓸 수 있는 API (POST). 보기 전용 사용자가 부르면 403.
-OP_ONLY = {'/api/switch', '/api/inject', '/api/control', '/api/agent', '/api/narrate'}
+ADMIN_ONLY = {'/api/agent'}   # POST(연결/해제·경로 변경). GET(연결 정보 보기)은 모두 가능
 OPEN_PATHS = {'/login', '/logout', '/static/login.css'}
 
 
@@ -39,7 +39,8 @@ def _load():
 
 
 CFG = _load()
-ENABLED = bool(CFG.get('SCADA_VIEW_PW') and CFG.get('SCADA_OP_PW') and CFG.get('SCADA_SECRET'))
+ENABLED = bool(CFG.get('SCADA_ADMIN_PW') and CFG.get('SCADA_USER_PW') and CFG.get('SCADA_SECRET'))
+ACCOUNTS = {'admin': ('SCADA_ADMIN_PW', 'admin'), 'user': ('SCADA_USER_PW', 'user')}   # 아이디 -> (비밀번호 키, 역할)
 _fails: dict[str, list[float]] = {}
 
 
@@ -47,7 +48,7 @@ def make_auth_file():
     """비밀번호 파일 생성(없을 때만). 값은 화면에 출력하지 않는다 — 파일을 직접 열어 확인."""
     if AUTH_FILE.exists(): return False
     AUTH_FILE.parent.mkdir(parents=True, exist_ok=True)
-    AUTH_FILE.write_text(f"SCADA_VIEW_PW={secrets.token_urlsafe(9)}\nSCADA_OP_PW={secrets.token_urlsafe(12)}\nSCADA_SECRET={secrets.token_hex(32)}\n")
+    AUTH_FILE.write_text(f"SCADA_ADMIN_PW={secrets.token_urlsafe(12)}\nSCADA_USER_PW={secrets.token_urlsafe(9)}\nSCADA_SECRET={secrets.token_hex(32)}\n")
     AUTH_FILE.chmod(0o600)
     return True
 
@@ -59,7 +60,7 @@ def _sign(role, exp):
 
 
 def role_of(req):
-    if not ENABLED: return 'op'
+    if not ENABLED: return 'admin'
     tok = req.cookies.get(COOKIE, '')
     try:
         b, sig = tok.split('.', 1)
@@ -67,7 +68,7 @@ def role_of(req):
         good = hmac.new(CFG['SCADA_SECRET'].encode(), msg, hashlib.sha256).hexdigest()
         if not hmac.compare_digest(sig, good): return None
         role, exp = msg.decode().split('|')
-        return role if int(exp) > time.time() and role in ('view', 'op') else None
+        return role if int(exp) > time.time() and role in ('admin', 'user') else None
     except Exception:
         return None
 
@@ -80,8 +81,9 @@ h1{font-size:17px;margin:0 0 4px}p{color:#9a9a9a;margin:0 0 18px;font-size:12.5p
 input{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #2b2b2b;background:#171717;color:#fff;font-size:14px}
 button{margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#7aa8ff;color:#000;font-weight:700;font-size:14px;cursor:pointer}
 .e{color:#ff8a8a;font-size:12.5px;margin-top:10px;min-height:16px}</style></head><body>
-<form method="post" action="/login"><h1>⚡ 수배전 감시·진단 데모</h1><p>받은 비밀번호를 입력하세요. 보기 전용 / 운영자 비밀번호에 따라 권한이 정해집니다.</p>
-<input type="password" name="pw" placeholder="비밀번호" autofocus autocomplete="current-password"><button>들어가기</button><div class="e">__ERR__</div></form></body></html>"""
+<form method="post" action="/login"><h1>⚡ 수배전 감시·진단 데모</h1><p>아이디와 비밀번호를 입력하세요.</p>
+<input name="id" placeholder="아이디" autofocus autocomplete="username" style="margin-bottom:8px">
+<input type="password" name="pw" placeholder="비밀번호" autocomplete="current-password"><button>들어가기</button><div class="e">__ERR__</div></form></body></html>"""
 
 
 async def login(req):
@@ -92,8 +94,10 @@ async def login(req):
     f = [t for t in _fails.get(ip, []) if now - t < 600]
     if len(f) >= 8:
         return HTMLResponse(LOGIN_HTML.replace('__ERR__', '시도가 너무 많습니다. 10분 뒤 다시 시도하세요.'), status_code=429)
-    pw = (await req.form()).get('pw', '')
-    role = 'op' if hmac.compare_digest(pw, CFG['SCADA_OP_PW']) else 'view' if hmac.compare_digest(pw, CFG['SCADA_VIEW_PW']) else None
+    form = await req.form()
+    uid, pw = str(form.get('id', '')).strip().lower(), str(form.get('pw', ''))
+    acc = ACCOUNTS.get(uid)
+    role = acc[1] if acc and hmac.compare_digest(pw.encode(), CFG[acc[0]].encode()) else None
     if not role:
         _fails[ip] = f + [now]
         await asyncio.sleep(0.8)
@@ -117,7 +121,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if role is None:
             if req.url.path.startswith('/api/'): return JSONResponse({'error': '로그인이 필요합니다'}, status_code=401)
             return RedirectResponse('/login', status_code=303)
-        if role != 'op' and req.method == 'POST' and req.url.path in OP_ONLY:
-            return JSONResponse({'error': '보기 전용 권한입니다 — 운영자 비밀번호로 로그인하세요'}, status_code=403)
+        if role != 'admin' and req.method == 'POST' and req.url.path in ADMIN_ONLY:
+            return JSONResponse({'error': '에이전트 연결/해제는 관리자(admin)만 할 수 있습니다'}, status_code=403)
         req.state.role = role
         return await call_next(req)

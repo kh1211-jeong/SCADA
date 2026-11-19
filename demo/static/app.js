@@ -270,8 +270,8 @@ async function tick() {
 async function init() {
   META = await api('/api/meta');
   const me = await api('/api/me');
-  document.body.classList.toggle('viewonly', me.role === 'view');
-  if (me.auth) $('#who').innerHTML = `${me.role === 'op' ? '운영자' : '보기 전용'} · <a href="/logout">로그아웃</a>`;
+  document.body.classList.toggle('notadmin', me.role !== 'admin');
+  if (me.auth) $('#who').innerHTML = `${me.role === 'admin' ? '관리자(admin)' : '사용자(user)'} · <a href="/logout">로그아웃</a>`;
   refreshAgentBtn(); setInterval(refreshAgentBtn, 10000);
   renderTabs(); drawDiagram(); setPTab('eq'); tick(); setInterval(tick, 1000); setInterval(loadSpark, 5000);
 }

@@ -337,7 +337,7 @@ async def narrate(req: Request):
 
 
 async def me(req: Request):
-    return JSONResponse({'role': getattr(req.state, 'role', 'op'), 'auth': auth.ENABLED})
+    return JSONResponse({'role': getattr(req.state, 'role', 'admin'), 'auth': auth.ENABLED})
 
 
 app = Starlette(routes=[Route('/login', auth.login, methods=['GET', 'POST']), Route('/logout', auth.logout), Route('/api/me', me), Route('/', index), Route('/api/meta', meta), Route('/api/state', state), Route('/api/switch', do_switch, methods=['POST']), Route('/api/inject', do_inject, methods=['POST']),
