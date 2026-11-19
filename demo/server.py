@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 
+import concurrent.futures
 import json
 import os
 import queue
@@ -115,11 +116,26 @@ def on_event(kind, obj):
                   f"원인과 위치를 진단해 줘.", 0))
     elif kind == 'switch':
         say('system', f"{obj['node']} {obj['action']}" + (f" · {obj['cause']}" if obj.get('cause') else ''))
-        jobs.put((f"[자동 진단 요청] 모의 시각 {obj['time']}에 {obj['node']}({TYPE_KO.get(obj['etype'], obj['etype'])})가 "
-                  f"{obj['action']}되었다(조작 주체: {obj['by']}{', 원인: ' + obj['cause'] if obj.get('cause') else ''}). 정전·영향 범위와 이상 여부를 진단해 줘.", 3))
+        line = (f"{obj['time'][11:]} {obj['node']}({TYPE_KO.get(obj['etype'], obj['etype'])}) {obj['action']}"
+                f"(주체: {obj['by']}{', 원인: ' + obj['cause'] if obj.get('cause') else ''})")
+        with pend_sw['lock']:                               # 3분 안의 연속 조작은 한 번의 진단으로 묶는다
+            pend_sw['ops'].append(line)
+            if len(pend_sw['ops']) == 1: jobs.put((_switch_job, 3))
 
 
 eng.listeners.append(on_event)
+
+
+pend_sw = {'ops': [], 'lock': threading.Lock()}
+ASK_TIMEOUT = 120
+_pool = concurrent.futures.ThreadPoolExecutor(max_workers=3)   # 시간 초과된 호출은 뒤에서 끝나게 두고 다음 요청 진행
+
+
+def _switch_job():
+    with pend_sw['lock']:
+        ops, pend_sw['ops'] = pend_sw['ops'], []
+    return (f"[자동 진단 요청] 최근 차단기 조작 {len(ops)}건:\n" + '\n'.join('- ' + o for o in ops) +
+            "\n조작 전체를 묶어서 정전·영향 범위와 이상 여부를 진단해 줘.")
 
 
 def worker():
@@ -128,21 +144,27 @@ def worker():
         if delay_min:
             target = eng.minute + delay_min
             while eng.minute < target: time.sleep(0.2)
+        if callable(text): text = text()                  # 묶음 진단은 실행 시점에 내용을 확정
         if not agent.enabled: continue          # 대기 중 연결이 해제되면 버림
         pend = {'id': len(chat), 'role': 'agent', 'text': '진단 중…', 'time': eng.tstr(), 'pending': True}
         chat.append(pend)
         t0 = time.time()
+        fut = _pool.submit(agent.ask, text)
         try:
-            ans, via = agent.ask(text)
+            ans, via = fut.result(timeout=ASK_TIMEOUT)     # 언어 모델 과부하(503)·지연이 길어도 다음 요청을 막지 않게 상한
             pend.update(text=ans, pending=False, via=via, sec=round(time.time() - t0, 1))
             agent.stats.update(n=agent.stats['n'] + 1, last_sec=pend['sec'], last_via=via)
+        except concurrent.futures.TimeoutError:
+            pend.update(text=f'에이전트 응답 지연({ASK_TIMEOUT}초 초과) — 언어 모델(Gemini)이 과부하일 수 있습니다. 잠시 뒤 다시 물어 주세요.', pending=False, error=True)
+            agent.stats['fail'] += 1
         except Exception as e:
             pend.update(text=f'에이전트 호출 실패: {e}', pending=False, error=True)
             agent.stats['fail'] += 1
 
 
 # ---------------------------------------------------------------- 이상 점수 실시간 해설
-narr = {'on': False, 'items': [], 'busy': False, 'last': 0.0, 'last_state': None}
+narr = {'on': False, 'items': [], 'busy': False, 'last': 0.0, 'last_state': None, 'seen': 0.0}
+NARR_EVERY = 90          # 상태 변화가 없으면 실제 90초마다 (언어 모델 사용량 절약)
 NARR_SYS = ('너는 수배전 계통 이상 탐지 화면의 해설자다. 주어진 이상 점수 데이터만 근거로 한국어 존댓말로 2~3문장, 짧게 설명한다. '
             '이상 점수 = 가장 이상한 센서 5개가 평소보다 몇 배 예측을 빗나가는지(6분 평균). 기준선은 정상 운전의 상위 1% 값이며 3분 넘게 넘으면 경보. '
             '평상시 점수는 대략 10 이하. 지금 수준(정상/상승 중/경보), 추세, 점수를 끌어올리는 설비와 그 이유(개폐 조작 직후인지, 주입된 이상인지 모름)를 말한다. '
@@ -173,9 +195,10 @@ def narrator():
     while True:
         time.sleep(1)
         if not narr['on'] or narr['busy'] or not agent.enabled or not eng.scores: continue
+        if time.time() - narr['seen'] > 15: continue          # 아무도 점수 팝업을 보고 있지 않으면 해설하지 않음
         s = eng.scores[-1][1]
         state = 'alarm' if s > eng.thr else 'rise' if s > 30 else 'normal'
-        if state == narr['last_state'] and time.time() - narr['last'] < 30: continue
+        if state == narr['last_state'] and time.time() - narr['last'] < NARR_EVERY: continue
         d = _score_summary()
         if d is None: continue
         narr['busy'] = True
@@ -317,6 +340,7 @@ async def agent_status(req: Request):
 async def score(req: Request):
     """이상 점수 추이(최근 N분): 점수, 기준선, 분마다 상위 기여 설비, 경보 구간, 개폐 시각, 실시간 해설."""
     minutes = int(req.query_params.get('minutes', 180))
+    narr['seen'] = time.time()                              # 팝업이 열려 있는 동안만 해설 진행
     with eng.lock:
         sc = list(eng.scores)[-minutes:]; th = {t: tops for t, tops in list(eng.top_hist)[-minutes:]}
         t0 = sc[0][0] if sc else None

@@ -349,7 +349,7 @@ async function renderScore(first) {
   drawBig();
   const nr = SC.narr;
   $('#narBtn').textContent = nr.on ? '해설 끄기' : '해설 켜기'; $('#narBtn').className = 'btn ' + (nr.on ? 'neg' : 'pri');
-  $('#narSt').textContent = !AG?.enabled ? '에이전트 연결 해제 상태' : nr.busy ? '해설 작성 중…' : nr.on ? '상태가 바뀌면 바로, 평소엔 30초마다 갱신' : '';
+  $('#narSt').textContent = !AG?.enabled ? '에이전트 연결 해제 상태' : nr.busy ? '해설 작성 중…' : nr.on ? '상태가 바뀌면 바로, 평소엔 90초마다 갱신 (이 창이 열려 있을 때만)' : '';
   const sig = nr.items.map((x) => x.time + x.text.length).join();
   if ($('#narr').dataset.sig !== sig) {
     $('#narr').dataset.sig = sig;
