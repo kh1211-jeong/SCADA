@@ -66,12 +66,12 @@ SKIP_GOCLAW=1 zsh agent/install.sh       # ~/agents/litellm 구성 (goclaw 빌�
 
 ```bash
 cd ~/SCADA
-HOST=0.0.0.0 AGENT_MODE=direct zsh demo/run.sh        # 웹 :8765 를 사내망에 공개, LiteLLM 직결
+SCADA_HOST=0.0.0.0 AGENT_MODE=direct zsh demo/run.sh        # 웹 :8765 를 사내망에 공개, LiteLLM 직결
 ```
 
 | 환경변수 | 기본값 | 의미 |
 |---|---|---|
-| `HOST` | 127.0.0.1 | 웹(:8765)이 열릴 주소. 사내 접속은 `0.0.0.0`. MCP(:8766)는 항상 127.0.0.1 |
+| `SCADA_HOST` | 127.0.0.1 | 웹(:8765)이 열릴 주소. 사내 접속은 `0.0.0.0`. MCP(:8766)는 항상 127.0.0.1 |
 | `PORT` | 8765 | 웹 포트 |
 | `AGENT_MODE` | (goclaw) | `direct`면 goclaw를 띄우지도 쓰지도 않음 |
 | `WARMUP` | 40 | 시작 시 모델 입력 창을 채우는 모의 분 수 |
@@ -113,7 +113,7 @@ After=network-online.target
 [Service]
 User=<사용자>
 WorkingDirectory=/home/<사용자>/SCADA
-Environment=HOST=0.0.0.0
+Environment=SCADA_HOST=0.0.0.0
 Environment=AGENT_MODE=direct
 # Environment=HTTPS_PROXY=http://proxy:port
 # Environment=NO_PROXY=127.0.0.1,localhost

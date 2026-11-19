@@ -90,6 +90,7 @@ function paint() {
     if (v.POWER !== undefined) { a = fmt(v.POWER, 'kW'); b = `${fmt(v.CURRENT, 'A')} ${fmt(v.VOLTAGE, n.etype.startsWith('ACB') ? 'V' : 'kV')}`; }
     if (n.etype === 'BTR') { b = `탭${v.TAP ?? '–'} ${fmt(v.TEMP, '℃')}`; tv = true; }
     if (n.etype === 'LTR') { a = ''; b = `${fmt(v.LOAD, '%')} ${fmt(v.TEMP_W, '℃')}`; tv = true; }
+    if (v.via && (n.etype === 'MAIN' || n.etype === 'TIE')) { a = `연계 공급 ← ${v.via.replace('BTR_', '')}`; tv = true; }
     const t1 = g.querySelector('[data-v1]'), t2 = g.querySelector('[data-v2]');
     t1.textContent = a; t2.textContent = b;
     t1.setAttribute('class', 'val' + (v.on ? '' : ' dead')); t2.setAttribute('class', 'val' + (tv ? ' tval' : '') + (v.on ? '' : ' dead'));
@@ -99,7 +100,8 @@ function paint() {
   document.querySelectorAll('.edge').forEach((p) => {
     const a = vals[p.dataset.a], b = vals[p.dataset.b], on = !!(a && b && a.on && b.on);
     const key = p.dataset.a + '>' + p.dataset.b;
-    p.classList.remove('v154', 'v66', 'v220'); if (on) p.classList.add(p.dataset.v);
+    p.classList.remove('v154', 'v66', 'v220', 'viatie'); if (on) p.classList.add(p.dataset.v);
+    if (on && a.via && b.via) p.classList.add('viatie');
     if (key in prevOn && prevOn[key] !== on) { p.classList.remove('flash'); void p.getBBox(); p.classList.add('flash'); setTimeout(() => p.classList.remove('flash'), 2100); }
     prevOn[key] = on;
   });

@@ -14,6 +14,6 @@ DPID=$!
 HP=http://127.0.0.1:18790/health; [[ $AGENT_MODE == direct ]] && HP=http://127.0.0.1:4000/health/liveliness
 for i in {1..40}; do curl -s -o /dev/null $HP && curl -s -o /dev/null http://127.0.0.1:${PORT:-8765}/api/agent && break; sleep 1; done
 [[ $AGENT_MODE == direct ]] || zsh ~/agents/goclaw-scada/setup_agent.sh > /dev/null 2>&1 && echo "진단 에이전트 도구 연결 완료"
-echo "데모: http://${HOST:-127.0.0.1}:${PORT:-8765}"
+echo "데모: http://${SCADA_HOST:-127.0.0.1}:${PORT:-8765}"
 open http://127.0.0.1:8765 2>/dev/null
 wait $DPID

@@ -314,6 +314,17 @@ class Engine:
         order, _, _ = self.sim._topology(self.sim.state.copy())
         return set(order)
 
+    def tie_fed(self):
+        """연계(TIE) 경로로 가압된 설비 -> 실제 공급 변압기. 자기 변압기가 아닌 다른 변압기에서 넘어온 전기를 화면에 표시하기 위함."""
+        order, parent, via = self.sim._topology(self.sim.state.copy())
+        out, src = {}, {}
+        for n in order:                                  # BFS 순서라 부모가 먼저 처리됨
+            p = parent[n]
+            src[n] = n if self.plant.etype[n] == 'BTR' else src.get(p)
+            if p is not None and (via[n] or p in out):
+                out[n] = src[n]
+        return out
+
     def run(self):
         """백그라운드 루프: speed(모의 분/초)에 맞춰 step 호출."""
         while True:

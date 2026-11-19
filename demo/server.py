@@ -144,12 +144,14 @@ async def state(req: Request):
     with eng.lock:
         last = eng.last
         en = eng.energized()
+        tf = eng.tie_fed()
         vals = {}
         for nd in DIAG.get(s, {'nodes': []})['nodes']:
             n = nd['id']; q = tools.node_tags.get(n, {})
             v = {k: _num(last.get(t), 2 if k == 'PF' else 1) for k, t in q.items() if k != 'STATUS'}
             if n in eng.plant.sw_idx: v['closed'] = int(eng.sim.state[eng.plant.sw_idx[n]])
             v['on'] = n in en
+            if n in tf and tf[n]: v['via'] = tf[n]       # 연계 공급원(변압기)
             vals[n] = v
         scores = [(t.strftime('%H:%M'), round(sc, 2)) for t, sc, _ in list(eng.scores)[-180:]]
         act = [eng.alarm_view(a) for a in eng.alarms if a['end'] is None and a['minutes'] >= 1]
@@ -243,7 +245,7 @@ def main():
     threading.Thread(target=worker, daemon=True).start()
     mcp_app = build_mcp(tools).streamable_http_app(host='127.0.0.1')
     threading.Thread(target=lambda: uvicorn.run(mcp_app, host='127.0.0.1', port=8766, log_level='warning'), daemon=True).start()
-    uvicorn.run(app, host=os.environ.get('HOST', '127.0.0.1'), port=int(os.environ.get('PORT', 8765)), log_level='warning')
+    uvicorn.run(app, host=os.environ.get('SCADA_HOST', '127.0.0.1'), port=int(os.environ.get('PORT', 8765)), log_level='warning')
 
 
 if __name__ == '__main__':

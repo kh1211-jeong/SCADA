@@ -50,6 +50,8 @@ main { display: grid; grid-template-columns: 1fr 420px; height: calc(100% - 48px
 .edge { stroke-width: 2.4; fill: none; transition: stroke .3s; stroke: var(--dead); }
 .edge.v154 { stroke: var(--v154); } .edge.v66 { stroke: var(--v66); } .edge.v220 { stroke: var(--v220); }
 .edge.tie { stroke-dasharray: 5 4; stroke-width: 1.6; }
+.edge.viatie { stroke-dasharray: 10 5; animation: tieflow 1.2s linear infinite; }
+@keyframes tieflow { to { stroke-dashoffset: -15; } }
 .edge.flash { animation: eflash .5s ease-in-out 4; }
 @keyframes eflash { 50% { stroke: #fff; stroke-width: 4; } }
 .node { cursor: pointer; }

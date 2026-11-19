@@ -56,6 +56,8 @@ zsh demo/run.sh                 # goclaw + LiteLLM + 데모 서버 → http://12
   Go 1.27 json v2로 SQLite JSON 열 Scan 실패 → `agent/goclaw-sqlite-scan.patch`. 도구를 9종으로 제한 안 하면 내장 49개 노출로 2분+.
   지침(AGENTS/SOUL.md)은 DB에 저장 → `sync_context.py` 후 재시작. 데모 서버 재시작 후 MCP 재연결은 `setup_agent.sh`.
 - 데모 시계는 시나리오 42일 끝에 닿으면 멈췄었음(배속 10으로 하룻밤 두면 도달 → 조작이 반영 안 됨). 지금은 `Engine._rewind()`가 1주 되감아 무한 진행, 표시 시각은 `t_off`로 계속 흐름.
+- 활선 판정은 `Plant.solve` BFS(연계 TIE 경로 포함). 주 차단기가 열려도 연계가 닫혀 있으면 하위는 살아 있는 게 맞다 → 화면에 "연계 공급 ← 변압기"와 흐르는 점선으로 표시(`Engine.tie_fed`).
+- zsh는 `HOST`를 호스트명으로 자동 설정 → 바인드 주소 변수는 `SCADA_HOST`. `run.sh` 종료 trap이 이름으로 LiteLLM·goclaw를 죽이므로 재시작이 겹치면 새로 뜬 쪽이 죽을 수 있음(에이전트 호출 실패 → 4000·18790 포트 확인).
 - 계통도: 모선 가로 구간에 여러 선로가 겹쳐 그려짐 → 가압 선로를 항상 위로(`paint()`), 아니면 정전처럼 보임.
 - Word PDF 변환은 AppleScript save-as가 -1708로 실패. 쪽수는 `python3 scripts/tools/word_pages.py *.docx` — Word에 다른 문서가 열려 있으면 active document가 엉뚱한 문서를 세므로 모두 닫고 이름으로 센다.
 - 사용자는 보고서에 "데이터를 다 받지 못한 사정"을 쓰는 걸 원치 않음(SWaT 사본 손상 등). FMCS가 시뮬레이션이라는 사실은 짧게 표기.
